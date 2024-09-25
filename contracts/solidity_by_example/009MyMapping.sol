@@ -25,8 +25,8 @@ contract NestedMapping {
     constructor() {  
 
         // 假设有两个地址和两种代币  
-        address owner1 = 0x123...; // 示例地址1  
-        address owner2 = 0x456...; // 示例地址2  
+        address owner1 = 0x32E649d3385182b41aebbDD58032B3939BCbA53B;  // 示例地址1  
+        address owner2 = 0xA5d68CE183B2bdCC48Fa283D55Bb4E1EdbA67F43;  // 示例地址2  
         string memory tokenA = "TokenA";  
         string memory tokenB = "TokenB";  
   
