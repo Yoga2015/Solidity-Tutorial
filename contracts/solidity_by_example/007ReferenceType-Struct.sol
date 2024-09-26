@@ -14,7 +14,7 @@ contract ReferenceTypeStruct{
 
     }
 
-    // 初始化 一个 stu1 结构体，但 未初始化  
+    // 实例化 一个 stu1 结构体， 但 未初始化  
     Student stu1; 
 
     // 给 整个结构体 进行赋值 的 四种方法：

@@ -3,25 +3,33 @@ pragma solidity ^0.8.13;
 
 contract ReferenceTypeArray{
 
-    // 固定长度数组：在声明时 指定 数组的长度。用 T[k] 的 格式 声明，其中 T 是 元素的类型，k 是 长度.
-    uint[8] array1;
+    // 固定长度数组：在声明时 指定 数组的长度。使用 T[k] 的 格式 声明，其中 T 是 元素的类型，k 是 长度.
 
-    bytes1[10] array2;
+    uint[8] array1;   // 声明了 一个 包含 8个无符号整数 的 数组
 
-    address[120] array3;
+    bytes1[10] array2;   // 声明了 一个 包含 10个无符号整数 的 数组
+
+    address[8] array3;    // 声明了 一个 包含 8个 地址 的 数组
 
     // 可变长度数组（动态数组）：在声明时 不指定 数组的长度。用 T[] 的 格式 声明，其中 T 是 元素的类型。
-    uint[] array4;
 
-    bytes1[] array5;
+    uint[] array4;    // 声明了 一个 可变长度 的 无符号整数 数组 array4
 
-    address[] array6;
+    bytes1[] array5;    // 声明了 一个 可变长度 的 字节数组 array6
 
-    bytes array7;
+    address[] array6;     // 声明了 一个 可变长度 的 address类型 数组 array6
 
-    // memory 动态数组
-    // uint[] memory array8 = new uint[](5);
-    // bytes memory array9 = new bytes(9);
+    bytes array7;      //  声明了 一个 可变长度 的 字节数组 array7
+    
+
+    // 可变长度数组：可以使用 new 操作符 来创 建并 初始化，但必须 在创建时 指定 初始长度（尽管这个长度之后可以改变）。
+
+    // memory 修饰 的 可变长度 的 无符号整数 动态数组
+
+    uint[] memory array8 = new uint[](5);
+
+    bytes memory array9 = new bytes(9);
+
 
     // 创建 动态数组 ，需要 一个一个元素的赋值
     // uint[] memory x = new uint[](3);
