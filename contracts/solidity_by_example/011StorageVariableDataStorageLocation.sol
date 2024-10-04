@@ -5,21 +5,22 @@ pragma solidity ^0.8.13;
 contract StorageVariableDataStorageLocation {  
 
     // storage类型 状态变量  应该 在合约的顶部 声明，以确保 在整个合约范围内 都是 可访问的。
+    // 如果 状态变量（state variable）没有进行 显式声明 其 存储位置 ，它们默认会被认为 是 存储在合约的存储（storage）中的 。
     
-    uint256 public count;    // count 是一个 状态变量，用于存储一个计数器。
+    uint256 public count;    // 状态变量count ，存储在storage中 ，它用于存储一个计数器。
 
 
-    // increment 函数 用于 更新 计数器 的 值  
+    // increment 函数 用于 更新 计数器 的 值 
     function increment() public {  
 
-        count += 1; // 更新状态变量，增加计数器  
+        count += 1;  // 更新 状态变量，增加 计数器  
 
     }  
     
     // getCount 函数  用于 返回 计数器 的 当前值
     function getCount() public view returns (uint256) {  
 
-        return count; // 返回状态变量的值  
+        return count;  // 返回 状态变量的值  
         
     }  
 }
