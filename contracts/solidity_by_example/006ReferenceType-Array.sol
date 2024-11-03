@@ -47,3 +47,30 @@ contract ReferenceTypeArray{
 
 // 数组分为固定长度数组和可变长度数组两种： 固定长度数组、可变长度数组（动态数组）
 
+
+contract ArrayMemberFunctionsAndProperties {    
+    
+    uint[] public numArray;
+
+     
+    function addToArray(uint num) public {      // 添加元素到数组中   
+
+        numArray.push(num);    
+    }
+  
+    function getArrayLength() public view returns (uint) {      // 获取数组的长度  
+
+        return numArray.length;    
+    }
+        
+    function getElement(uint index) public view returns (uint) {   // 根据索引获取数组中的元素
+
+        return numArray[index];
+    }
+      
+    function removeLastElement() public {     // 移除数组的最后一个元素 
+
+        numArray.pop();
+    }
+
+}
