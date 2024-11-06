@@ -25,3 +25,34 @@ contract TransferEvent {
 // 上面例子，每次用 _transfer函数 进行 转账操作的时候，都会释放 Transfer事件，并记录 相应的变量。
 
 // Solidity 中 的 event（事件） 的 主要作用 是 记录 区块链上的活动，类似于 日志记录。
+
+contract MyContract {
+    struct MyStruct {
+        uint id;
+        string name;
+    }
+
+    event MyEvent(
+        uint indexed id,
+        bool flag,
+        address user,
+        bytes32 data,
+        uint[] array,
+        MyStruct myStruct
+    );
+
+    function triggerEvent() public {
+        MyStruct memory myStruct = MyStruct(1, "walking");
+
+        uint[] memory array = new uint[](2);
+        array[0] = 1;
+        array[1] = 2;
+
+        emit MyEvent(1, true, msg.sender, "Hello Solidity !", array, myStruct);
+    }
+}
+
+// MyEvent 事件 接受了 六个参数：
+// 一个 uint 类型的 id ，一个 bool 类型的 flag ，一个 address 类型的 user ，
+// 一个 bytes32 类型的 data ，一个 uint 数组 array ，以及一个 MyStruct 类型的 myStruct 。
+// id 参数被标记为 indexed ，这意味着我们可以通过 id 来过滤 MyEvent 事件的日志。
