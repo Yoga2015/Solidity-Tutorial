@@ -60,3 +60,9 @@ contract ReceiveETH {
 // 其中 还有 两个函数：
 //          一个是 receive()函数，收到ETH 被触发，并发送 Log事件；
 //          另一个是 查询 合约ETH余额 的 getBalance()函数 。
+
+// transfer（）有 固定的 2300gas 限制，无返回值 ，发送失败 会自动 revert 回滚交易，是 次优选择
+
+// send（） 有 固定的 2300gas 限制，返回值 为 布尔值，发送失败 不会自动 revert 回滚交易，几乎 没有人用它
+
+// call（）没有 gas 限制（无限制），返回值 为 布尔值, 数据 ，发送失败  不会自动 revert，需手动处理，推荐使用
