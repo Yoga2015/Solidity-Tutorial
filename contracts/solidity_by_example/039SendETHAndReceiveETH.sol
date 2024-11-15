@@ -10,7 +10,7 @@ contract SendETH {
     // receive方法，接收 ETH 时 被触发
     receive() external payable {}
 
-    // 1、用 transfer() 方法 发送ETH
+    // 1、用 transfer() 方法 发送 ETH
     function transferETH(address payable _to, uint256 amount) external payable {
         _to.transfer(amount); // 接收方地址.transfer ( 发送ETH数额 )；
     }
@@ -19,7 +19,7 @@ contract SendETH {
     error SendFailed(); // 发送ETH 失败 error
 
     function sendETH(address payable _to, uint256 amount) external payable {
-        // 处理下 send 的 返回值 ，如果失败，revert交易 并 发送error
+        // 处理下 send 的 返回值 ，如果失败，会自动 revert交易 并发送 error
         bool success = _to.send(amount);
 
         if (!success) {
