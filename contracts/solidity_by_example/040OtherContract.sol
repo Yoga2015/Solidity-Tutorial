@@ -36,14 +36,30 @@ contract OtherContract {
 // setX(): external payable函数，可以设置_x的值，并向合约发送ETH。
 // getX(): 读取_x的值。
 
+// CallContract合约 去调用 OtherContract合约 的 函数
 contract CallContract {
+    // 往 callSetX函数 传入 目标合约地址，生成 目标合约的引用，然后 调用 目标函数
     function callSetX(address _Address, uint256 x) external {
         OtherContract(_Address).setX(x);
     }
 
+    // 往 callGetX函数 传入 合约的引用，来 实现 调用 目标合约 的 getX()函数
     function callGetX(OtherContract _Address) external view returns (uint x) {
         x = _Address.getX();
     }
 
-    function callGet2(address _Address) external view returns (uint x) {}
+    // 创建 合约变量，然后通过 合约变量 来调用 目标函数
+    function callGetX2(address _Address) external view returns (uint x) {
+        OtherContract oc = OtherContract(_Address); // 给变量oc存储了OtherContract合约的引用
+
+        x = oc.getX();
+    }
+
+    // 调用 它 来给 合约 转账
+    function setXTransferETH(
+        address otherContract,
+        uint256 x
+    ) external payable {
+        OtherContract(otherContract).setX{value: msg.value}(x);
+    }
 }
