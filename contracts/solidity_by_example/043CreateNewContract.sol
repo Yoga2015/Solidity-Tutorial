@@ -25,3 +25,26 @@ contract Pair {
 // 此外，它还有一个factory变量，用于存储 工厂合约的地址。
 
 // 在 构造函数 中，它会将 工厂合约的地址 设置为 msg.sender，并在 initialize函数中 设置 token0 和 token1。
+
+contract PairFactory {
+    mapping(address => mapping(address => address)) public getPair; // 通过两个代币地址查Pair地址
+
+    address[] public allPairs; // 保存所有Pair地址
+
+    function createPair(
+        address tokenA,
+        address tokenB
+    ) external returns (address pairAddr) {
+        Pair pair = new Pair(); // 创建新合约
+
+        pair.initialize(tokenA, tokenB); // 调用新合约的initialize方法
+
+        pairAddr = address(pair); // 更新地址map
+
+        allPairs.push(pairAddr);
+
+        getPair[tokenA][tokenB] = pairAddr;
+
+        getPair[tokenB][tokenA] = pairAddr;
+    }
+}
