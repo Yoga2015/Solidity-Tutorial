@@ -20,31 +20,16 @@ contract Pair {
     }
 }
 
-// Pair合约 包含 两个公开的地址变量 token0 和 token1，分别代表 两个代币的地址。
+// Pair合约 包含 ：
 
-// 此外，它还有一个factory变量，用于存储 工厂合约的地址。
+// 1、两个公开的地址变量 token0 和 token1，分别代表 交易对中 的 第一个代币的地址 和 第二个代币的地址。
+// 一个公开的状态变量 factory，用于存储 创建这个Pair合约 的 工厂合约的地址。
 
-// 在 构造函数 中，它会将 工厂合约的地址 设置为 msg.sender，并在 initialize函数中 设置 token0 和 token1。
+// 2、Pair合约的构造函数是payable的，这意味着它可以接收以太币。然而，在这个构造函数中，并没有使用到payable特性。
+// 构造函数的主要作用是将factory状态变量设置为调用它的地址，即工厂合约的地址。
+// msg.sender是Solidity中的一个全局变量，它表示当前交易的发送者。
 
-contract PairFactory {
-    mapping(address => mapping(address => address)) public getPair; // 通过两个代币地址查Pair地址
-
-    address[] public allPairs; // 保存所有Pair地址
-
-    function createPair(
-        address tokenA,
-        address tokenB
-    ) external returns (address pairAddr) {
-        Pair pair = new Pair(); // 创建新合约
-
-        pair.initialize(tokenA, tokenB); // 调用新合约的initialize方法
-
-        pairAddr = address(pair); // 更新地址map
-
-        allPairs.push(pairAddr);
-
-        getPair[tokenA][tokenB] = pairAddr;
-
-        getPair[tokenB][tokenA] = pairAddr;
-    }
-}
+// 3、一个 initialize 构造函数 是 一个外部可见的函数，用于在Pair合约部署后初始化其状态。
+// 它接受两个参数：_token0和_token1，分别代表交易对中的两个代币的地址。
+// 函数内部 使用 require语句 来确保 只有 工厂合约 可以调用 这个函数。
+// 如果 调用者 不是 工厂合约，则交易会失败，并返回错误信息"UniswapV2: FORBIDDEN"。
