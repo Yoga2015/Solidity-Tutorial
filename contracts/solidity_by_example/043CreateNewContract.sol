@@ -3,8 +3,8 @@ pragma solidity ^0.8.13;
 
 contract Pair {
     address public factory; // 工厂合约地址
-    address public token0; // 代币1
-    address public token1; // 代币2
+    address public token0; // 交易对中 的 第一个代币的地址
+    address public token1; // 交易对中 的 第二个代币的地址
 
     // 构造函数 constructor 在部署时 将 factory 赋值为 工厂合约地址
     constructor() payable {
@@ -33,3 +33,32 @@ contract Pair {
 // 它接受两个参数：_token0和_token1，分别代表交易对中的两个代币的地址。
 // 函数内部 使用 require语句 来确保 只有 工厂合约 可以调用 这个函数。
 // 如果 调用者 不是 工厂合约，则交易会失败，并返回错误信息"UniswapV2: FORBIDDEN"。
+
+contract PairFactory {
+    // 用于 通过 两个代币的地址 来查找 对应的 Pair合约地址。键 是 两个代币的地址（tokenA和tokenB），值 是 Pair合约的地址。
+    mapping(address => mapping(address => address)) public getPair;
+
+    address[] public allPairs; // allPairs 地址数组，用于 存储 所有创建的 Pair合约的地址
+
+    // 用于创建新的Pair合约实例。它接受两个参数：tokenA和tokenB，分别代表 要创建 交易对 的 两个代币的地址。函数 返回 新创建的Pair合约的地址。
+    function createPair(
+        address tokenA,
+        address tokenB
+    ) external returns (address pairAddr) {
+        // Pair 必须是一个已经定义好的合约，且在当前上下文中可见（例如，它可能是在同一个文件中定义的，或者通过import语句引入的）
+        Pair pair = new Pair(); // 使用 new关键字 创建了 Pair合约 的 一个新实例。
+
+        pair.initialize(tokenA, tokenB); // 调用 新合约的 initialize方法
+
+        pairAddr = address(pair); // 将 新创建的Pair合约的地址 赋值给 pairAddr变量
+
+        allPairs.push(pairAddr); // 然后，将 这个地址 添加到 allPairs数组中
+
+        getPair[tokenA][tokenB] = pairAddr; // 更新 getPair映射
+
+        getPair[tokenB][tokenA] = pairAddr; // 更新 getPair映射
+    }
+}
+
+// PairFactory合约 是一个 在DEX中 用于 动态创建 和 管理 Pair合约实例 的 有用工具。
+// 通过 仔细设计 其 状态变量 和 函数逻辑，可以确保 合约的安全性、效率和可维护性。
