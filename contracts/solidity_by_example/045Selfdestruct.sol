@@ -10,7 +10,7 @@ contract DeleteContract {
 
     // deleteContract() 用于 自毁合约，并把 ETH 转入给 发起人。
     function deleteContract() external {
-        // 调用 selfdestruct 销毁合约，并把 剩余 的 ETH 转给 msg.sender
+        // 调用 selfdestruct 销毁合约，并把 剩余 的 ETH 转给 “msg.sender”（返回给了 指定的地址）
         selfdestruct(payable(msg.sender));
     }
 
@@ -20,7 +20,7 @@ contract DeleteContract {
     }
 }
 
-// 部署好上面的合约后，我们 向DeleteContract合约 转入1 ETH。这时，getBalance()会返回1 ETH，value变量是10。
+// 1.部署合约时  并且 向 DeleteContract合约 转入1 ETH。这时，getBalance()会返回1 ETH，value变量是10。
 
 // 当我们 调用deleteContract()函数，合约 将触发 selfdestruct操作。
 
