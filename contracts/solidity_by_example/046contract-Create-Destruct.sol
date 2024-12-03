@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 // 意味着 DeployContract合约 将能够使用 DeleteContract合约中 定义的功能。
-import "./044DeleteContract.sol";
+import "./045Selfdestruct.sol";
 
 contract DeployContract {
     // 被用于 demo函数 的 返回值
