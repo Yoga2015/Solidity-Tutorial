@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.13;
 
+// 创建一个外部合约OnlyEven，并使用try-catch来处理异常：
 contract OnlyEven {
+    // 构造函数 有一个参数a，当 a = 0 时，require会抛出异常；当 a = 1 时，assert会抛出异常；其他情况 均正常。
     constructor(uint a) {
         require(a != 0, "invalid number");
         assert(a != 1);
     }
 
+    // onlyEven 函数 有一个参数b，当 b 为 奇数 时，require会抛出异常。
     function onlyEven(uint256 b) external pure returns (bool success) {
         // 输入奇数时revert
         require(b % 2 == 0, "Ups! Reverting");
