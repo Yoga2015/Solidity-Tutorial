@@ -139,3 +139,13 @@ contract SelectorUse {
         require(success0 && success1 && success2 && success3 && success4);
     }
 }
+
+// 什么是 selector
+
+// 当我们 调用 智能合约 时，本质上 是 向目标合约 发送了 一段 calldata，发送 的 calldata 中 前4个字节 就是 selector（函数选择器）。
+
+// 如： 0x6a6278420000000000000000000000002c44b726adf1963ca47af88b284c06f30380fc78  中 的 6a627842  就是 selector（函数选择器） 4个字节 是 8个字符
+
+// 其实 calldata 就是告诉 智能合约，我要调用 哪个函数，以及 参数 是什么。
+
+// 在 remix 中 发送一次交易 后，可以在详细信息中 看见 input 即为 此次交易的 calldata
