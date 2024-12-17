@@ -62,7 +62,7 @@ contract AbiEncodeDecode {
     }
 }
 
-// 在以太坊中，数据 必须编码成 字节码 才能和 智能合约 交互。
+// 在以太坊中，数据 必须编码成 字节码 才能和 智能合约 交互！
 
 // Solidity中 ABI (Application Binary Interface，应用二进制接口 ) 是 与 以太坊智能合约 交互 的 标准。
 
