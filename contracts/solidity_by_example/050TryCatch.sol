@@ -38,7 +38,7 @@ contract TryCatch {
         }
     }
 
-    // 在 创建新合约中使用try-catch (合约 创建被视为 external call)
+    // 在 创建新合约中 使用try-catch (合约 创建被视为 external call)
     // executeNew(0)会失败并释放`CatchEvent`, executeNew(1)会失败并释放`CatchByte`,executeNew(2)会成功并释放`SuccessEvent`
     function evecuteNew(uint a) external returns (bool success) {
         try new OnlyEvenContract(a) returns (OnlyEvenContract _even) {
