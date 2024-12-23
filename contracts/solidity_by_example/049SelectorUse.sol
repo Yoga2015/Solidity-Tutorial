@@ -142,7 +142,7 @@ contract SelectorUse {
 
 // 什么是 selector
 
-// 当我们 调用 智能合约 时，本质上 是 向目标合约 发送了 一段 calldata，发送 的 calldata 中 前4个字节 就是 selector（函数选择器）。
+// 当我们 调用 智能合约的函数 时，发送的字节码（即calldata）的 前4个字节 就是 selector（函数选择器）。
 
 // 如： 0x6a6278420000000000000000000000002c44b726adf1963ca47af88b284c06f30380fc78  中 的 6a627842  就是 selector（函数选择器） 4个字节 是 8个字符
 
