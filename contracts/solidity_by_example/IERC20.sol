@@ -10,14 +10,14 @@ interface IERC20 {
 
     // 转账  （transfer函数 只能 从合约外部 调用，用于 将 代币 从 一个账户 转移到 另一个账户，会返回一个布尔值，成功转移 返回 true，否则 返回 false）
     function transfer(
-        address recipient,
-        uint256 amount
+        address recipient, //  recipient：接收代币的地址
+        uint256 amount //  amount：要转移的代币数量
     ) external returns (bool);
 
     // 查询  授权转账额度  （allowance函数 是一个只读函数、只能 从合约外部 调用，会返回 某个账户 授权给 另一个账户 可以花费 的 代币数量）
     function allowance(
-        address owner,
-        address spender
+        address owner, //  spender：被授权的账户地址
+        address spender //  amout：授权可以花费的代币数量
     ) external view returns (uint256);
 
     // 授权  （approve函数 只能 从合约外部 调用，用于授权 一个账户 能从 你的账户中 可以花费 指定数量的代币，授权成功 返回 true，否则 返回 false）
@@ -25,9 +25,9 @@ interface IERC20 {
 
     // 授权转账 （transferFrom函数 只能从合约外部调用，用于 从 一个账户 转移代币 到 另一个账户，但 这次转移操作 是由 被授权的第三方 发起的,转移成功返回 true，否则返回 false）
     function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
+        address sender, // sender:代币的原始持有者账户，也就是授权账户
+        address recipient, //  recipient:接收代币的第三个账户
+        uint256 amount // amount：要转移的代币数量
     ) external returns (bool);
 }
 
