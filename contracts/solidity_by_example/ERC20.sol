@@ -16,18 +16,18 @@ contract ERC20 is IERC20 {
     );
 
     // 定义一个映射 balanceOf， 用于存储 每个账户 的 代币余额。
-    mapping(address => uint256) public balanceOf;
+    mapping(address => uint256) public balanceOf; //（ 这行代码 算是 ERC20合约 实现了 IERC20接口 的 balanceOf函数 ）
 
     // 定义一个嵌套映射 allowance，用于存储 每个账户 授权给 其他账户 的 代币数量。
-    mapping(address => mapping(address => uint256)) public allowance;
+    mapping(address => mapping(address => uint256)) public allowance; //（ 这行代码 算是 ERC20合约 实现了 IERC20接口 的 allowance函数 ）
 
     // 定义代币的名称、符号 和 小数位数，这些 都是 全局可访问 的 状态变量
     string public name; // 代币的名称
     string public symbol; // 代币的符号
-    uint8 public decimals; // 小数位数
+    uint8 public decimals; // 小数位数       1e18     以太坊 的 decimals 是 V神 定义为18      mina 的 decimals 定义为9
 
     // 定义 代币的总供应量，这是一个全局可访问的状态变量
-    uint256 public totalSupply;
+    uint256 public totalSupply; //（ 这行代码 算是 ERC20合约 实现了 IERC20接口 的 totalSupply函数 ）
 
     //  构造函数， 用于 初始化 代币的名称、符号 和 小数位数。
     constructor(string memory _name, string memory _symbol, uint8 _decimals) {
@@ -105,3 +105,5 @@ contract ERC20 is IERC20 {
         _burn(from, amount); // 调用 内部 _burn 函数 执行 代币销毁
     }
 }
+
+// 上面 的 ERC20合约  去实现  IERC20 接口 时 ，发现 ERC20合约 并没有完整实现 IERC20 接口 中 的 所有函数，
