@@ -60,6 +60,7 @@ contract ERC20 is IERC20 {
     }
 
     // 使用 transferFrom 函数，允许 一个被授权的账户 从 另一个账户（授权账户）中 转移代币 到 第三个账户。
+    // 通过 授权机制，从`sender`账户 向 `recipient`账户 转账 `amount`数量代币。转账的部分会从调用者的`allowance`中扣除。
     // sender:代币 的 原始持有者账户，也就是授权账户、 recipient:接收代币的第三个账户、 amount：要转移的代币数量
     function transferFrom(
         address sender,
