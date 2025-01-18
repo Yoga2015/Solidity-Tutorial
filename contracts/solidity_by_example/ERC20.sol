@@ -36,7 +36,7 @@ contract ERC20 is IERC20 {
         decimals = _decimals;
     }
 
-    // 使用 transfer 函数，可将 代币 从 一个账户 转移到 另一个账户。   recipient：接收代币的地址、 amount：要转移的代币数量
+    // 实现 IERC20中 的 transfer函数 来进行 代币转账逻辑，调用方扣除amount数量代币，接收方增加相应代币。  recipient：接收代币的地址、 amount：要转移的代币数量
     function transfer(
         address recipient,
         uint256 amount
@@ -50,7 +50,8 @@ contract ERC20 is IERC20 {
         return true; // 返回 操作成功
     }
 
-    // 使用 approve 函数，允许 一个账户 授权 另一个账户 花费 其 一定数量的代币。   spender：被授权的账户地址、 amout：授权可以花费的代币数量
+    // 实现 IERC20中 的  approve 函数 来进行 代币授权逻辑。被授权方spender可以支配授权方的amount数量的代币。
+    //               spender：被授权的账户地址、 amout：授权可以花费的代币数量
     function approve(address spender, uint256 amount) external returns (bool) {
         allowance[msg.sender][spender] = amount; // 设置 授权 金额
 
@@ -59,9 +60,10 @@ contract ERC20 is IERC20 {
         return true; // 返回 操作成功
     }
 
+    // 实现 IERC20中的 transferFrom函数 来进行 授权转账逻辑。被授权方将授权方sender的amount数量的代币转账给接收方recipient。
     // 使用 transferFrom 函数，允许 一个被授权的账户 从 另一个账户（授权账户）中 转移代币 到 第三个账户。
-    // 通过 授权机制，从`sender`账户 向 `recipient`账户 转账 `amount`数量代币。转账的部分会从调用者的`allowance`中扣除。
     // sender:代币 的 原始持有者账户，也就是授权账户、 recipient:接收代币的第三个账户、 amount：要转移的代币数量
+    // 通过 授权机制，从`sender`账户 向 `recipient`账户 转账 `amount`数量代币。转账的部分会从调用者的`allowance`中扣除。
     function transferFrom(
         address sender,
         address recipient,
