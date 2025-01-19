@@ -80,32 +80,23 @@ contract ERC20 is IERC20 {
         return true; // 返回 操作成功
     }
 
-    // _mint 函数 （内部函数），用于 创建 新的代币 并 发送到 指定账户。    to:指定账户、 amount:要转移的代币数量
-    function _mint(address to, uint256 amount) internal {
-        balanceOf[to] += amount; // 向 指定账户 添加 代币
+    // mint 函数 : 铸造代币函数，不属于 IERC20标准 。  任何人 可以铸造 任意数量的代币，实际应用中 会加 权限管理，只有 owner 可以铸造 代币：
+    // 铸造代币，从 `0` 地址转账给 调用者地址
+    function mint(uint256 amount) internal {
+        balanceOf[msg.sender] += amount;
 
-        totalSupply += amount; // 增加总供应量
+        totalSupply += amount;
 
-        emit Transfer(address(0), to, amount); // 触发 Transfer事件，表示 从 “无”（address(0)）创建并发送到指定账户。
+        emit Transfer(address(0), msg.sender, amount);
     }
 
-    // _burn 函数 （内部函数），用于 从 指定账户 中 销毁 一定数量的代币
-    function _burn(address from, uint256 amount) internal {
-        balanceOf[from] -= amount; // 从 指定账户 中 扣除代币
+    // burn 函数 : 销毁代币函数，不属于 IERC20标准 。  销毁代币，从 调用者地址 转账给  `0` 地址
+    function burn(uint256 amount) internal {
+        balanceOf[msg.sender] -= amount;
 
-        totalSupply -= amount; // 减少总供应量
+        totalSupply -= amount;
 
-        emit Transfer(from, address(0), amount); // 触发 Transfer事件，表示 将 代币 销毁到 “无” (address(0))
-    }
-
-    // mint 函数，允许 外部调用者 创建 新的代币 并 发送到 指定账户。 注意：这通常是一个危险操作，因为它 可以无限制地 增加 代币的供应量
-    function mint(address to, uint256 amount) external {
-        _mint(to, amount); // 调用 内部 _mint 函数 执行 代币创建
-    }
-
-    // burn 函数，允许 外部调用者 从 指定账户 中 销毁 一定数量的代币。注意：这通常是一个危险操作，因为它 可以无限制地 减少代币的供应量
-    function burn(address from, uint256 amount) external {
-        _burn(from, amount); // 调用 内部 _burn 函数 执行 代币销毁
+        emit Transfer(msg.sender, address(0), amount);
     }
 }
 
