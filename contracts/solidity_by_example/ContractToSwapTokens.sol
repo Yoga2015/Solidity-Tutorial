@@ -52,3 +52,21 @@ contract TokenSwap {
         require(sent, "Token transfer failed");
     }
 }
+
+// 如何交换代币
+
+// 1. Alice有100个来自AliceCoin的代币，这是一个ERC20代币。
+
+// 2. Bob有100个来自BobCoin的代币，这也是一个ERC20代币。
+
+// 3. Alice和Bob想用10个Alice币换20个Bob币。
+
+// 4. Alice或Bob部署TokenSwap
+
+// 5. Alice批准TokenSwap从AliceCoin中提取10个代币
+
+// 6. Bob批准TokenSwap从BobCoin中提取20个代币
+
+// 7. Alice或Bob调用TokenSwap.swap（）
+
+// 8. Alice和Bob成功地交换了代币。
