@@ -36,3 +36,23 @@ contract MappingDemo {
 // 在 智能合约 中 如何 高效地 存储 和 检索 数据？
 
 // 通过 键值对 的方式，mapping 允许 开发者 通过 键（Key）来查询 对应的值（Value），比如：通过 一个人 的 id 来查询 他的钱包地址，这在处理 用户信息、权限管理、资源分配 等场景中 尤为重要。
+
+contract BalanceTracker {
+    // 定义一个 mapping 来存储 地址 到 余额 的 映射
+    mapping(address => uint256) public balances;
+
+    // 更新余额
+    function updateBalance(uint256 newBalance) public {
+        balances[msg.sender] = newBalance;
+    }
+
+    // 获取余额
+    function getBalance() public view returns (uint256) {
+        return balances[msg.sender];
+    }
+
+    // 重置余额
+    function resetBalance() public {
+        delete balances[msg.sender];
+    }
+}
