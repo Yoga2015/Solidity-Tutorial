@@ -2,24 +2,46 @@
 pragma solidity ^0.8.13;
 
 contract ControlFlow {
-    // if-else
-    function ifElseTest(uint256 num1) public pure returns (bool) {
-        if (num1 == 0) {
-            return (true);
+    address public owner;
+
+    uint256 public sValue;
+
+    // （1）在 构造函数 中 使用 控制流
+    constructor(uint256 initialValue) {
+        if (initialValue > 0) {
+            sValue = initialValue;
         } else {
-            return (false);
+            sValue = 100; // 默认值
+        }
+
+        sValue = initialValue > 100 ? initialValue : 100; // 使用三元运算符
+    }
+
+    // （2）在 普通函数 中 使用 控制流
+    function checkValue(uint256 value) public pure returns (string memory) {
+        if (value > 100) {
+            return "Value is large";
+        } else {
+            return "Value is small";
         }
     }
 
-    // for循环
-    function forLoopTest() public pure returns (uint256) {
-        uint sum = 0;
+    // （3）在修饰器中使用控制流
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
 
-        for (uint i = 0; i < 10; i++) {
-            sum += i;
+        _; // 继续执行函数体
+    }
+
+    // （4）在循环中使用控制流
+    function sumArray(uint256[] memory array2) public pure returns (uint256) {
+        uint256 sum = 0;
+
+        for (uint256 i = 0; i < array2.length; i++) {
+            sum += array2[i];
         }
 
-        return (sum);
+        return sum;
     }
 
     // while循环
@@ -52,33 +74,3 @@ contract ControlFlow {
 
     // 另外,还有continue（立即进入下一个循环）和 break（跳出当前循环）关键字可以使用。
 }
-
-contract Loop {
-    function loop() public pure {
-        // for loop
-        for (uint256 i = 0; i < 10; i++) {
-            if (i == 3) {
-                // Skip to next iteration with continue
-                continue;
-            }
-
-            if (i == 5) {
-                // Exit loop with break
-                break;
-            }
-        }
-
-        // while loop
-        uint256 j;
-
-        while (j < 10) {
-            j++;
-        }
-    }
-}
-
-// Solidity 支持 for、while 和 do while 循环。但不要编写无限循环的代码，因为这可能会触及 gas 上限，导致你的交易失败。
-
-// 由于上述原因，while 和 do while 循环很少被使用。
-
-// 优先使用 for 循环，并确保循环条件能够正确终止，以避免交易失败和 gas 浪费。
