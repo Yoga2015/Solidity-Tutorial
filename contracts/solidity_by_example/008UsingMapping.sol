@@ -6,17 +6,17 @@ contract MappingExample {
     // 1. 基础映射：地址到余额的映射
     mapping(address => uint) public userBalance;
     
-    // 2. 嵌套映射：地址到另一个映射的映射（用于记录用户之间的授权额度）
+    // 2. 嵌套映射：地址到另一个映射的映射（用于记录用户之间的授权额度） 授权关系
     mapping(address => mapping(address => uint)) public allowance;
     
-    // 3. 结构体
+    // 3. 结构体映射（复杂数据存储）
     struct UserInfo {
         string name;
         uint age;
         bool isActive;
     }
     
-    // 4. 地址到结构体的映射
+    // 地址到结构体的映射
     mapping(address => UserInfo) public userInfo;
     
     // 存入以太币，更新用户余额
