@@ -46,3 +46,110 @@ contract NestedMapping {
   } 
 
 }
+
+
+contract GameScoreSystem {
+    // 定义游戏等级枚举
+    enum GameLevel { Bronze, Silver, Gold }
+
+    // 玩家信息结构体
+    struct PlayerInfo {
+        string name;        // 玩家名称
+        GameLevel level;    // 玩家等级
+        bool isActive;      // 是否激活
+    }
+
+    // 1. 基础映射：记录玩家基本信息
+    mapping(address => PlayerInfo) public players;
+
+    // 2. 嵌套映射：记录玩家在不同游戏中的分数
+    // 第一层键：玩家地址
+    // 第二层键：游戏名称
+    // 值：玩家在该游戏中的分数
+    mapping(address => mapping(string => uint)) public gameScores;
+
+    // 3. 嵌套映射：记录玩家在不同游戏中的成就
+    // 第一层键：玩家地址
+    // 第二层键：游戏名称
+    // 第三层键：成就名称
+    // 值：是否获得该成就
+    mapping(address => mapping(string => mapping(string => bool))) public achievements;
+
+    // 事件：记录分数更新
+    event ScoreUpdated(address player, string game, uint newScore);
+    // 事件：记录成就获得
+    event AchievementUnlocked(address player, string game, string achievement);
+
+    // 注册新玩家
+    function registerPlayer(string memory _name) public {
+        // 确保玩家未注册
+        require(!players[msg.sender].isActive, "Player already registered");
+        
+        // 创建新玩家信息
+        players[msg.sender] = PlayerInfo({
+            name: _name,
+            level: GameLevel.Bronze,  // 初始等级为青铜
+            isActive: true
+        });
+    }
+
+    // 更新游戏分数
+    function updateGameScore(string memory _game, uint _score) public {
+        // 确保玩家已注册
+        require(players[msg.sender].isActive, "Player not registered");
+        
+        // 更新分数
+        gameScores[msg.sender][_game] = _score;
+        
+        // 触发事件
+        emit ScoreUpdated(msg.sender, _game, _score);
+
+        // 根据分数更新玩家等级
+        updatePlayerLevel(_score);
+    }
+
+    // 解锁游戏成就
+    function unlockAchievement(string memory _game, string memory _achievement) public {
+        // 确保玩家已注册
+        require(players[msg.sender].isActive, "Player not registered");
+        
+        // 设置成就为已获得
+        achievements[msg.sender][_game][_achievement] = true;
+        
+        // 触发事件
+        emit AchievementUnlocked(msg.sender, _game, _achievement);
+    }
+
+    // 查询玩家在特定游戏中的分数
+    function getGameScore(address _player, string memory _game) public view returns (uint) {
+        return gameScores[_player][_game];
+    }
+
+    // 查询玩家是否获得特定游戏的特定成就
+    function hasAchievement(
+        address _player, 
+        string memory _game, 
+        string memory _achievement
+    ) public view returns (bool) {
+        return achievements[_player][_game][_achievement];
+    }
+
+    // 内部函数：更新玩家等级
+    function updatePlayerLevel(uint _score) internal {
+        if (_score >= 1000) {
+            players[msg.sender].level = GameLevel.Gold;
+        } else if (_score >= 500) {
+            players[msg.sender].level = GameLevel.Silver;
+        }
+    }
+
+    // 获取玩家信息
+    function getPlayerInfo(address _player) public view returns (
+        string memory name,
+        GameLevel level,
+        bool isActive
+    ) {
+        PlayerInfo memory player = players[_player];
+        return (player.name, player.level, player.isActive);
+    }
+}
