@@ -41,6 +41,7 @@ contract MappingDemo {
 
 // 下面是一个简单的余额追踪器合约，就像一个简单的银行账户系统：
 contract BalanceTracker {
+    
     // 定义事件，用于记录重要操作
     event BalanceUpdated(address indexed user, uint256 oldBalance, uint256 newBalance);
     event Transfer(address indexed from, address indexed to, uint256 amount);
@@ -51,18 +52,18 @@ contract BalanceTracker {
     // 定义一个 mapping 来存储 地址 到 余额 的 映射
     mapping(address => uint256) public balances;
 
-    // 构造函数，设置合约部署者为拥有者
+    // 构造函数，设置 合约部署者 为 拥有者
     constructor() {
         owner = msg.sender;
     }
 
-    // 修饰器：只有合约拥有者可以调用
+    // onlyOwner 修饰器：只有合约拥有者可以调用
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
-    // 修饰器：检查余额是否足够
+    // hasSufficientBalance 修饰器：检查余额是否足够
     modifier hasSufficientBalance(uint256 amount) {
         require(balances[msg.sender] >= amount, "Insufficient balance");
         _;
