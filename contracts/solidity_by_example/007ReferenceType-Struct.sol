@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 contract ReferenceTypeStruct{
 
-    // 创建 Student 结构体
+    // 1、创建 Student 结构体
     struct Student{
 
         uint256 id;
@@ -14,39 +14,42 @@ contract ReferenceTypeStruct{
 
     }
 
-    // 实例化 一个 stu1 结构体， 但 未初始化  
+    // 2、实例化 一个 stu1 结构体， 但 未初始化  
     Student stu1; 
 
-    // 操作 结构体 ：
+    // 3、操作 结构体 ：结构体赋值的四种方法
 
-    // 方法1 ： 在 函数中 创建 一个 storage 的 struct 引用
+    // 方法1 ： 通过 storage引用 来修改 结构体的值。
     function initStudent1() external{
 
-        Student storage stu2 = stu1;
+        // 创建一个指向stu1的引用，命名为stu2 ， 修改stu2 就等于 修改stu1
+        Student storage stu2 = stu1;   //  storage关键字表示stu2直接引用状态变量stu1的存储位置
 
-        stu2.id = 88;
+        // 通过引用修改结构体的id字段
+        stu2.id = 88;  // 因为stu2是stu1的storage引用，所以这行代码也会修改stu1.id的值为88
 
-        stu2.score = 666;
+        // 通过引用修改结构体的score字段
+        stu2.score = 666; // 因为stu2是stu1的storage引用，所以同样会修改stu1.score的值为666
 
     }
 
-    // 方法2 ：直接引用 状态变量 的 struct
+    // 方法2 ：直接访问 状态变量（stu1），不需要创建额外的引用
     function initStudent2() external{
 
-        stu1.id = 3;
+        stu1.id = 3;  // 直接访问状态变量stu1的id字段，将id值设置为3
 
         stu1.score = 77; 
 
     }
 
-    // 方法3:构造函数式
+    // 方法3: 构造函数式 赋值
     function initStudent3() external{
 
-        stu1 = Student(33,99);
+        stu1 = Student(33,99);   // 创建一个新的Student结构体实例
 
     }
 
-    // 方法4：key value
+    // 方法4：键值对（key-value）方式 赋值
     function initStudent4() external{
 
         stu1 =  Student({id:36,score:44});
@@ -68,7 +71,7 @@ contract StructLearning {
     // 创建一个简单的结构体变量
     SimpleUser public user1;
 
-    // 基础结构体赋值方法
+    // 基础结构体 赋值方法
     function setSimpleUser() public {
         // 方法1：直接赋值
         user1.name = "Alice";
@@ -92,6 +95,7 @@ contract StructLearning {
 
     // 注册新学生（展示结构体的创建和初始化）
     function registerStudent(string memory _name) public {
+
         studentCount++;
         // 方法2：使用命名参数创建结构体
         students[studentCount] = Student({
@@ -104,9 +108,8 @@ contract StructLearning {
     }
 
     // 添加成绩（展示结构体的修改）
-    function addScore(uint _studentId, uint _score) public {
-        // 使用storage指针修改结构体
-        Student storage student = students[_studentId];
+    function addScore(uint _studentId, uint _score) public {     
+        Student storage student = students[_studentId];   // 使用storage指针修改结构体
         student.scores.push(_score);
     }
 
