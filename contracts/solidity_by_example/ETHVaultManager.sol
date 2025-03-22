@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13; 
 
-contract TransferEvent {
+contract ETHVaultManager {
 
     address public owner;                // 设置合约所有者（owner）
     bool public paused;                  // 可暂停机制（paused）
