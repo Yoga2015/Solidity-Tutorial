@@ -1,72 +1,87 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract variableValue{
+contract VariableValue {
 
-    // 值类型初始值 Value Type Initial Value
-
-    bool public boolValue;  // false
-
-    string public stringValue;   // ''
-
-    int public  intValue;  // 0
-
-    uint public uintValue;  // 0
-
-    address public addressValue;   // 0x0000000000000000000000000000000000000000
-
-    enum ActionSet{Buy,Hold,Sell} ActionSet public enumValue;  // 第1个内容 Buy 的 索引 0
-
-    function fi() internal{}  // internal 空白函数
-
-    function fe() external {}  // external 空白函数 
-
-
-    //  引用类型初始值 Reference Type Initial Value
-
-    uint[16] public staticArray;  // 所有成员 设为 其 默认值 的 静态数组 [0,0,0,0,0,0,0,0]
-
-    uint[] public dynamicArray;  // `[]`
-
-
-    struct Person{ // 所有成员 设为 其 默认值 的 结构体 0, 0
-
+    // 1. 值类型初始值演示
+    bool public boolValue;          // 默认值: false
+    string public stringValue;      // 默认值: ""
+    int public intValue;           // 默认值: 0
+    uint public uintValue;         // 默认值: 0
+    address public addressValue;    // 默认值: 0x0000000000000000000000000000000000000000
+    bytes public bytesValue;       // 默认值: 0x
+    
+    // 枚举类型
+    enum ActionSet { Buy, Hold, Sell }
+    ActionSet public enumValue;     // 默认值: 第一个枚举值(Buy, 即0)
+    
+    // 2. 引用类型初始值演示
+    uint[16] public staticArray;    // 固定长度数组，所有元素默认值为0
+    uint[] public dynamicArray;     // 动态数组，默认值为空数组
+    
+    struct Person {
         uint256 id;
-
         uint256 score;
-
+        string name;
+        bool isActive;
     }
-
-    Person public p1 = Person(16,348);
-
-
-    mapping(uint => address) public myMapping; // 所有元素都为其默认值的mapping
-
-
-    // delete 操作符 , 例如： delete a ; 会让 状态变量a 的 值 变为 初始值
-
+    Person public p1 = Person(16, 348, "Alice", true);
+    
+    // 映射类型
+    mapping(uint => address) public myMapping;    // 所有可能的键都映射到类型的默认值
+    
+    
+    // 3. delete 操作符演示
     bool public boolValue2 = true;
-
-    function del() external {
-
-        delete  boolValue2;    // delete 会让 boolValue2 变为 默认值，false
-
+    uint[] public dynamicArray2 = [1, 2, 3, 4, 5];
+    
+    // 值类型删除演示
+    function deleteBool() external {
+        delete boolValue2;    // 恢复为 false
     }
-
-    function d_address() external{
-         delete  addressValue;
+    
+    function deleteAddress() external {
+        delete addressValue;  // 恢复为零地址
     }
-
-    function d_enum() external{
-         delete  enumValue;
+    
+    function deleteEnum() external {
+        delete enumValue;     // 恢复为第一个枚举值
     }
-
-    function d_Person() external{
-         delete  p1;
+    
+    // 引用类型删除演示
+    function deletePerson() external {
+        delete p1;           // 所有字段恢复为默认值
     }
-
-    function d_staticArray() external {
+    
+    function deleteStaticArray() external {
+        delete staticArray;  // 所有元素设为0
+    }
+    
+    function deleteDynamicArray() external {
+        delete dynamicArray2;  // 清空数组
+    }
+    
+    // 获取变量当前值的辅助函数
+    function getPersonInfo() external view returns (Person memory) {
+        return p1;
+    }
+    
+    function getDynamicArrayLength() external view returns (uint) {
+        return dynamicArray2.length;
+    }
+    
+    // 重置所有状态变量
+    function resetAll() external {
+        delete boolValue;
+        delete stringValue;
+        delete intValue;
+        delete uintValue;
+        delete addressValue;
+        delete bytesValue;
+        delete enumValue;
         delete staticArray;
+        delete dynamicArray;
+        delete p1;
+        // mapping 无法整体删除
     }
-
 }
