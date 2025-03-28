@@ -2,17 +2,51 @@
 pragma solidity ^0.8.13;
 
 contract Constants {
-    // 1、constant 的 合法使用
 
-    uint256 public constant MAX_VALUE = 100; // 合法：值类型
+    // 一、constant 的 合法使用
+    // 1. 基础值类型常量
+    uint256 public constant MAX_UINT = type(uint256).max;    // uint256最大值
+    uint256 public constant MIN_UINT = type(uint256).min;    // uint256最小值
+    uint256 public constant MAX_VALUE = 100;                 // 自定义上限值
+    
+    // 2. 地址类型常量
+    address public constant DEAD_ADDRESS = address(0);                             // 零地址
+    address public constant OWNER = 0x1234567890123456789012345678901234567890;   // 固定地址
+    
+    // 3. 字符串和字节常量
+    string public constant NAME = "MyContract";                    // 合约名称
+    string public constant VERSION = "1.0.0";                     // 版本号
+    bytes32 public constant HASH = keccak256("MyContract");       // 哈希值
+    bytes32 public constant DOMAIN_SEPARATOR = keccak256(abi.encodePacked(NAME, VERSION));  // 域分隔符
+    
+    // 4. 数值常量
+    uint256 public constant DECIMALS = 18;           // 精度
+    uint256 public constant INITIAL_SUPPLY = 1000;   // 初始供应量
+    uint256 public constant FEE_RATE = 100;         // 费率（基点）
+    
+    // 5. 时间常量
+    uint256 public constant SECONDS_PER_DAY = 24 * 60 * 60;         // 一天的秒数
+    uint256 public constant SECONDS_PER_WEEK = 7 * SECONDS_PER_DAY;  // 一周的秒数
+    
+    // 6. 固定大小数组常量（合法）
+    bytes4 public constant TRANSFER_SELECTOR = bytes4(keccak256("transfer(address,uint256)"));
+    
 
-    address public constant OWNER = 0x1234567890123456789012345678901234567890; // 合法：值类型
-
-    string public constant NAME = "MyContract"; // 合法：字符串
-
-    bytes32 public constant HASH = keccak256("MyContract"); // 合法：固定大小的字节数组
-
-    // 2、constant 的 非法使用
+    // 7. 常量使用示例
+    function getMaxValue() public pure returns (uint256) {
+        return MAX_VALUE;
+    }
+    
+    function isDeadAddress(address _addr) public pure returns (bool) {
+        return _addr == DEAD_ADDRESS;
+    }
+    
+    function getDomainSeparator() public pure returns (bytes32) {
+        return DOMAIN_SEPARATOR;
+    }
+    
+    
+    // 二、constant 的 非法使用
 
     // uint256[] public constant VALUES = [1, 2, 3];      // 非法：动态大小的数组
 
