@@ -8,6 +8,7 @@ contract ControlFlow {
 
     // （1）在 构造函数 中 使用 控制流
     constructor(uint256 initialValue) {
+
         if (initialValue > 0) {
             sValue = initialValue;
         } else {
@@ -26,14 +27,14 @@ contract ControlFlow {
         }
     }
 
-    // （3）在修饰器中使用控制流
+    // （3）在 修饰器 中 使用 控制流
     modifier onlyOwner() {
         require(msg.sender == owner, "Not the owner");
 
         _; // 继续执行函数体
     }
 
-    // （4）在循环中使用控制流
+    // （4）在 循环 中 使用 控制流
     function sumArray(uint256[] memory array2) public pure returns (uint256) {
         uint256 sum = 0;
 
@@ -72,5 +73,41 @@ contract ControlFlow {
         return (sum);
     }
 
-    // 另外,还有continue（立即进入下一个循环）和 break（跳出当前循环）关键字可以使用。
+    // continue 和 break 示例
+    function processArray(uint256[] memory arr) public pure returns (uint256) {
+        uint256 sum = 0;
+        for (uint256 i = 0; i < arr.length; i++) {
+            // 跳过0值
+            if (arr[i] == 0) continue;
+            // 如果遇到100则停止
+            if (arr[i] == 100) break;
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+    // 三元运算符示例
+    function max(uint256 a, uint256 b) public pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    // 复杂控制流示例
+    function complexFlow(uint256[] memory arr) public pure returns (uint256) {
+
+        uint256 result = 0;
+
+        for (uint256 i = 0; i < arr.length; i++) {
+
+            if (arr[i] == 0) {
+                continue;
+            } else if (arr[i] > 100) {
+                break;
+            } else {
+                result += arr[i];
+            }
+
+        }
+
+        return result;
+    }
 }
