@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 contract FunctionModifier {
+
     address public owner; // 用于 存储 合约所有者 的 地址。
 
     bool public paused;
@@ -38,26 +39,30 @@ contract FunctionModifier {
 
     // 1.4 日志记录 修饰器 : 用于 在函数执行前/后 记录日志，方便调试和监控。
     modifier logExecution(string memory _message) {
+
         emit Log(_message);
+
         _;
+
         emit Log("Execution completed");
     }
 
     // 1.5  自定义错误处理 修饰器 : 用于统一处理错误，避免在每个函数中重复编写错误检查逻辑。
     modifier checkBalance(uint256 _amount) {
+
         require(
             address(this).balance >= _amount,
             "Insufficient contract balance"
         ); // 确保合约余额足够时才执行支付逻辑。
+
         _;
     }
 
     // 2、使用 修饰器 （修饰器 也可以 组合使用）
     // 2.1 使用 onlyOwner 修饰器，确保只有 当前owner 才能调用 该函数，如果调用者是 owner,，则将 owner 更新为 _newOwner
     // 2.2 使用 logExecution 修饰器 在函数执行前/后 记录日志
-    function changeOwner(
-        address _newOwner
-    ) external onlyOwner logExecution("doSomething called") {
+    function changeOwner(address _newOwner) external onlyOwner logExecution("doSomething called") {
+
         require(_newOwner != address(0), "Invalid address");
 
         emit OwenrChanged(owner, _newOwner); //  记录 所有者 变更
@@ -66,14 +71,14 @@ contract FunctionModifier {
     }
 }
 
-// 上面例子中，定义了一个叫做 onlyOwner 的 modifier，然后 定义了 一个 changeOwner 函数 并添加 onlyOwner 修饰器, 通过 onlyOwner 修饰器 实现了 权限限制
+// 这个合约展示了 Solidity 中修饰器（modifier）的各种常见使用场景，包括 权限控制、输入验证、状态检查、日志记录、错误处理，修饰器的组合使用。 
 
-// 通过 修饰器 onlyOwner 确保 只有当前所有者 可以调用 changeOwner 函数,调用 changeOwner 函数 可以改变 合约 的 owner
 
 // 什么是 modifier
-// Solidity  中 的 modifier（修饰器）类似于 面向对象编程中 的 装饰器（decorator），
-// 装饰器（Decorator）是一种设计模式，主要用于 动态地 扩展 或 修改 函数、方法 或 类的行为，而无需直接修改其原始代码。
-// 装饰器 可以在 不修改 原始函数 或 类 的情况下，为 其 添加 额外的功能。
+// Solidity 中 的 modifier（修饰器）类似于 面向对象编程中 的 装饰器（decorator），
+        // 装饰器（Decorator）是一种设计模式，主要用于 动态地 扩展 或 修改 函数、方法 或 类的行为，而无需直接修改其原始代码。
+        // 装饰器 可以在 不修改 原始函数 或 类 的情况下，为 其 添加 额外的功能。
+// 修饰器（modifier）是 Solidity 中 用于 扩展 或 修改 函数行为的 特殊关键字。
 
 // modifier 的 作用
 // Solidity  中 的 modifier 主要用来 修饰 函数 的。   (扩展 函数功能 )
