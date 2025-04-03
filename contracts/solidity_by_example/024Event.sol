@@ -3,22 +3,34 @@
 pragma solidity ^0.8.13;
 
 contract TransferEvent {
+
     // 定义 _balances 映射变量，记录 每个地址 的 持币数量
     mapping(address => uint256) public _balances;
 
-    // 创建 Transfer 事件，记录 transfer 交易 的 转账地址，接收地址 和 转账数量
+    // 转账事件 ，创建 Transfer 事件，记录 transfer 交易 的 转账地址，接收地址 和 转账数量
     // Transfer 事件 共记录了 3个变量 ：from 代币的 转账地址 ，to 代币的 接收地址 和 value  代币的 转账数量
     event Transfer(address indexed from, address indexed to, uint256 value);
 
+    // 余额更新事件
+    event BalanceUpdated(address indexed account, uint256 newBalance);
+
     // 定义 _transfer 函数，触发事件的函数, 执行 转账逻辑
     function _transfer(address from, address to, uint256 amount) external {
-        _balances[from] = 10000; // 给 转账地址  一些 初始代币
 
-        _balances[from] -= amount; // from 地址 减去 转账数量
+        require(from != address(0), "Invalid sender"); // 检查 转账地址 是否为空
+        require(to != address(0), "Invalid recipient"); // 检查 接收地址 是否为空
+        require(amount > 0, "Invalid amount");     // 检查 转账数量 是否为 0
+
+        _balances[from] = 10000;  // 给 from 地址 一些 初始代币
+        require(_balances[from] >= amount, "Insufficient balance"); // 检查 转账地址 余额是否足够
+
+        _balances[from] -= amount; // from 地址 减去 转账数量 
 
         _balances[to] += amount; // to 地址 加上 转账数量
 
         emit Transfer(from, to, amount); // 释放 Transfer事件
+        emit BalanceUpdated(from, _balances[from]); // 释放 BalanceUpdated事件
+        emit BalanceUpdated(to, _balances[to]);  // 释放 BalanceUpdated事件
     }
 }
 
@@ -26,29 +38,63 @@ contract TransferEvent {
 
 // Solidity 中 的 event（事件） 的 主要作用 是 记录 区块链上的活动，类似于 日志记录。
 
-contract MyContract {
+// 复杂事件示例
+contract MyEvent {
+    
     struct MyStruct {
         uint id;
         string name;
+        uint timestamp;
     }
-
-    event MyEvent(
+    
+    // 基础事件
+    event SimpleEvent(string message);
+    
+    // 带索引的事件
+    event IndexedEvent(
+        uint indexed id,
+        address indexed user,
+        string message
+    );
+    
+    // 复杂数据结构事件
+    event ComplexEvent(
         uint indexed id,
         bool flag,
-        address user,
+        address indexed user,
         bytes32 data,
         uint[] array,
         MyStruct myStruct
     );
+    
+    // 触发简单事件
+    function emitSimpleEvent(string memory message) public {
+        emit SimpleEvent(message);
+    }
+    
+    // 触发带索引的事件
+    function emitIndexedEvent(uint id, string memory message) public {
+        emit IndexedEvent(id, msg.sender, message);
+    }
+    
+    // 触发复杂事件
+    function emitComplexEvent(uint id,bool flag,bytes32 data,uint[] memory array) public {
 
-    function triggerEvent() public {
-        MyStruct memory myStruct = MyStruct(1, "walking");
+        MyStruct memory myStruct = MyStruct({
+            id: id,
+            name: "Example",
+            timestamp: block.timestamp
+        });
+        
+        emit ComplexEvent(
+            id,
+            flag,
+            msg.sender,
+            data,
+            array,
+            myStruct
+        );
 
-        uint[] memory array = new uint[](2);
-        array[0] = 1;
-        array[1] = 2;
-
-        emit MyEvent(1, true, msg.sender, "Hello Solidity !", array, myStruct);
     }
 }
 
