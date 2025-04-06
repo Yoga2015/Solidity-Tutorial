@@ -1,48 +1,111 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.13;
 
-contract FatherModifier {
-    address public owner;
+// 基础访问控制合约
+contract AccessControl {
+  
+    address public owner;    // 合约所有者地址
+    
+    mapping(address => bool) public admins;   // 管理员映射
+   
+    bool public paused;    // 合约状态
+    
+    // 事件声明
+    event OwnershipTransferred(address indexed oldOwner, address indexed newOwner);
+    event AdminAdded(address indexed admin);
+    event AdminRemoved(address indexed admin);
+    event ContractPaused(address indexed pauser);
+    event ContractUnpaused(address indexed unpauser);
+
+    // 构造函数：设置合约部署者为所有者
     constructor() {
-        owner = msg.sender; // 初始化时， 将 交易发送方 设置为 合约 的 所有者
+        owner = msg.sender;
+        admins[msg.sender] = true;  // 所有者默认也是管理员
     }
 
-    // 修饰器：只有 所有者 才能执行 被修饰的函数
+    // 所有者权限检查修饰器
     modifier onlyOwner() {
-        require(msg.sender == owner, "You are not the owner"); // 检查调用者是否为owner地址
-        _; // 如果是的话，继续执行 回changeOwner函数 主体；否则报错 并 revert交易
-    }
-
-    function changeOwner(address newOwner) public virtual onlyOwner {
-        // 一个被onlyOwner修饰器 修饰的 函数
-        owner = newOwner;
-    }
-}
-
-contract ChildModifier is FatherModifier {
-    function someFunction() public onlyOwner {
-        // 我们可以直接使用父合约中的onlyOwner修饰器
-        // 只有所有者才能执行这里的代码
-    }
-
-    modifier limitValue(uint256 _value) {
-        // 定义一个新的修饰器：限制输入值在0到10之间
-
-        require(_value > 0 && _value < 10, "Value must be between 0 and 10");
-
+        require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
-    function doSomethingWithValue(uint256 value) public limitValue(value) {
-        // 一个被新定义的limitValue修饰器修饰的函数
-        // 执行一些操作，但输入值必须在0到10之间
+    // 管理员权限检查修饰器
+    modifier onlyAdmin() {
+        require(admins[msg.sender], "Only admin can call this function");
+        _;
     }
 
-    // 重写 父合约中的 changeOwner函数。注意：由于 changeOwner函数 在父合约中 已经被 onlyOwner修饰器 修饰，所以这里 不需要 再次修饰
-    function changeOwner(address newOwner) public override {
-        // 直接调用父合约的changeOwner函数
-        // 但由于我们已经在子合约的上下文中，且changeOwner已经被onlyOwner修饰，所以这里的调用也会受到onlyOwner的限制
-        FatherModifier.changeOwner(newOwner);
+    // 合约未暂停检查修饰器
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
+
+    // 合约已暂停检查修饰器
+    modifier whenPaused() {
+        require(paused, "Contract is not paused");
+        _;
+    }
+}
+
+// 继承访问控制的功能合约
+contract TokenManager is AccessControl {
+    
+    mapping(address => uint256) public balances;    // 代币余额映射
+  
+    uint256 public transferLimit;       // 最大转账限额
+    
+    // 事件声明
+    event Transfer(address indexed from, address indexed to, uint256 amount);
+    event TransferLimitUpdated(uint256 oldLimit, uint256 newLimit);
+
+    // 构造函数：设置初始转账限额
+    constructor(uint256 _transferLimit) {
+        transferLimit = _transferLimit;
+    }
+
+    // 转账金额检查修饰器
+    modifier checkTransferAmount(uint256 amount) {
+        require(amount <= transferLimit, "Transfer amount exceeds limit");
+        require(amount > 0, "Transfer amount must be positive");
+        _;
+    }
+
+    // 余额检查修饰器
+    modifier hasSufficientBalance(address from, uint256 amount) {
+        require(balances[from] >= amount, "Insufficient balance");
+        _;
+    }
+
+    // 转账函数：组合使用多个修饰器
+    function transfer(address to, uint256 amount) public 
+        whenNotPaused 
+        checkTransferAmount(amount)
+        hasSufficientBalance(msg.sender, amount)
+    {
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+        emit Transfer(msg.sender, to, amount);
+    }
+
+    // 更新转账限额：仅管理员可调用
+    function updateTransferLimit(uint256 newLimit) public 
+        onlyAdmin 
+        whenNotPaused 
+    {
+        emit TransferLimitUpdated(transferLimit, newLimit);
+        transferLimit = newLimit;
+    }
+
+    // 暂停合约：仅所有者可调用
+    function pause() public onlyOwner whenNotPaused {
+        paused = true;
+        emit ContractPaused(msg.sender);
+    }
+
+    // 恢复合约：仅所有者可调用
+    function unpause() public onlyOwner whenPaused {
+        paused = false;
+        emit ContractUnpaused(msg.sender);
     }
 }
