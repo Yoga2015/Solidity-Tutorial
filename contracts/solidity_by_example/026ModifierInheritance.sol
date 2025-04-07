@@ -23,25 +23,25 @@ contract AccessControl {
         admins[msg.sender] = true;  // 所有者默认也是管理员
     }
 
-    // 所有者权限检查修饰器
+    // 所有者权限检查 修饰器
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
-    // 管理员权限检查修饰器
+    // 管理员权限检查 修饰器
     modifier onlyAdmin() {
         require(admins[msg.sender], "Only admin can call this function");
         _;
     }
 
-    // 合约未暂停检查修饰器
+    // 合约未暂停检查 修饰器
     modifier whenNotPaused() {
         require(!paused, "Contract is paused");
         _;
     }
 
-    // 合约已暂停检查修饰器
+    // 合约已暂停检查 修饰器
     modifier whenPaused() {
         require(paused, "Contract is not paused");
         _;
@@ -64,14 +64,14 @@ contract TokenManager is AccessControl {
         transferLimit = _transferLimit;
     }
 
-    // 转账金额检查修饰器
+    // 转账金额检查 修饰器
     modifier checkTransferAmount(uint256 amount) {
         require(amount <= transferLimit, "Transfer amount exceeds limit");
         require(amount > 0, "Transfer amount must be positive");
         _;
     }
 
-    // 余额检查修饰器
+    // 余额检查 修饰器
     modifier hasSufficientBalance(address from, uint256 amount) {
         require(balances[from] >= amount, "Insufficient balance");
         _;
