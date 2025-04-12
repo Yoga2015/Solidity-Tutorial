@@ -54,7 +54,7 @@ contract Erzi is Yeye,Baba{
         Yeye.pop();
     }
 
-    // 2、super关键字：子合约可以利用 super.函数名() 来调用 最近的父合约函数。
+    // 2、super关键字：子合约可以利用 super.函数名() 来调用 最近的父合约函数 。
     // Solidity 继承关系 按声明时 从右到左 的顺序是：contract Erzi is Yeye, Baba，那么 Baba 是 最近的父合约，super.pop()将调用 Baba.pop()，而不是Yeye.pop()
     function callParentSuper() public {
         super.pop();
