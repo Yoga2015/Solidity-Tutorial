@@ -1,33 +1,89 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// 如果一个智能合约里至少有一个未实现的函数，即某个函数缺少主体{}中的内容，则必须将 该 合约 标为 abstract，不然编译会报错
-abstract contract InsertionSort{
-    
-     // 还没想好具体 怎么实现 插入排序 函数, 那么可以把 合约 标为 abstract，之后让别人补写上
-     // 另外，未实现的函数 需要加 virtual，以便 子合约 重写。
-    function insertionSort(uint[] memory a) public pure virtual returns(uint[] memory);
-    
-    // 这个 插入排序 函数  已想好 编写了 具体实现
-    function insertionSort2(uint[] memory a) public pure returns(uint[] memory) {
+// 定义一个 动物 抽象合约
+abstract contract Animal {
 
-        for (uint i = 1; i < a.length; i++){
+    // 基础属性
+    string public name;        // 动物名称
+    uint public age;          // 动物年龄
+    bool public isAlive;      // 是否存活
 
-            uint temp = a[i];
+    // 构造函数：初始化 基础属性
+    constructor(string memory _name, uint _age) {
+        name = _name;
+        age = _age;
+        isAlive = true;
+    }
 
-            uint j=i;
+    // 抽象函数：发出声音
+    // 因为每种动物的叫声不同，所以这里只声明不实现
+    function makeSound() public virtual returns (string memory);
 
-            while( (j >= 1) && (temp < a[j-1])){
-                a[j] = a[j-1];
-                j--;
-            }
+    // 具体函数：动物年龄增长
+    function grow() public {
+        age += 1;
+    }
+}
 
-            a[j] = temp;
-            
+// 定义一个猫咪合约，继承自 动物合约
+contract Cat is Animal {
+
+    // 猫咪特有属性
+    bool public isLazy;       // 是否懒惰
+    uint public lives;        // 剩余生命数量
+
+    // 构造函数
+    constructor(
+        string memory _name,
+        uint _age,
+        bool _isLazy
+    ) Animal(_name, _age) {
+        isLazy = _isLazy;
+        lives = 9;            // 猫有九条命
+    }
+
+    // 实现抽象函数makeSound
+    function makeSound() public pure override returns (string memory) {
+        return "Meow!";       // 猫叫声
+    }
+
+    // 重写grow函数
+    function grow() public override {
+
+        super.grow();         // 调用父合约的grow
+
+        if (isLazy) {
+            lives -= 1;       // 如果是懒猫，每长大一岁减少一条命
         }
 
-        return(a);
+    }
+}
 
-    }     
+// 定义一个狗狗合约，也继承自动物合约
+contract Dog is Animal {
+    
+    // 狗狗特有属性
+    bool public isLoyal;      // 是否忠诚
+    uint public tricks;       // 会的把戏数量
 
+    // 构造函数
+    constructor(
+        string memory _name,
+        uint _age,
+        bool _isLoyal
+    ) Animal(_name, _age) {
+        isLoyal = _isLoyal;
+        tricks = 0;
+    }
+
+    // 实现抽象函数makeSound
+    function makeSound() public pure override returns (string memory) {
+        return "Woof!";       // 狗叫声
+    }
+
+    // 学习新把戏
+    function learnTrick() public {
+        tricks += 1;
+    }
 }
