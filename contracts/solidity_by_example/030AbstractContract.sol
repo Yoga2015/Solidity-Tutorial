@@ -21,7 +21,7 @@ abstract contract Animal {
     function makeSound() public virtual returns (string memory);
 
     // 具体函数：动物年龄增长
-    function grow() public {
+    function grow() public virtual {
         age += 1;
     }
 }
