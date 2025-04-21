@@ -1,43 +1,93 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract functionOverLoading{
+// 购物车合约：展示函数重载的实际应用
+contract ShoppingCart {
 
-    function saySomething() public pure returns(string memory){
-
-        return ('Nothing');
+    // 定义商品结构体
+    struct Item {
+        string name;    // 商品名称
+        uint256 price;  // 商品价格
+        uint256 count;  // 商品数量
     }
-
-    function saySomething(string memory something)  public pure returns(string memory){
-
-        return (something);
-    }
-
-    // 上面定义 两个 都叫 saySomething() 的 函数：一个 没有任何参数，输出 "Nothing"，另一个 接收一个 string参数，输出 这个 string
-    // 最终 重载 函数 在经过编译器 编译后，由于 不同的 参数类型，都变成了 不同的 函数选择器（selector）
-
-
-
-    // 在调用重载函数时，会把输入的实际参数和函数参数的变量类型做匹配。 如果出现多个匹配的重载函数，则会报错。
-
-    // 下面这个例子 有两个 叫 f() 的函数，一个参数 为 uint8，另一个 为 uint256：
-
-    function f(uint8 _in) public pure returns (uint8 out){
-
-        out = _in;
-    }
-
     
-    function f(uint256 _in) public pure returns (uint256 out){
+    // 状态变量
+    mapping(address => Item[]) public userCarts;  // 用户购物车映射
+    
+    // 事件声明
+    event ItemAdded(address user, string name, uint256 price, uint256 count);
+    
+    // 函数重载示例1：添加商品（仅名称和价格）
+    // @param _name 商品名称、_price 商品价格
+    function addItem(string memory _name, uint256 _price) public {
 
-        out = _in;
+        Item[] storage cart = userCarts[msg.sender];
+
+        cart.push(Item({
+            name: _name,
+            price: _price,
+            count: 1      // 默认数量为1
+        }));
+        
+        emit ItemAdded(msg.sender, _name, _price, 1);
     }
+    
+    // 函数重载示例2：添加商品（指定数量）
+    // @param _name 商品名称、_price 商品价格、_count 商品数量
+    function addItem(string memory _name, uint256 _price, uint256 _count) public {
 
-    // 我们调用f(50)，因为 50 既可以被转换为 uint8，也可以被转换为 uint256，因此会报错。
+        require(_count > 0, "Count must be positive");
 
+        Item[] storage cart = userCarts[msg.sender];
+
+        cart.push(Item({
+            name: _name,
+            price: _price,
+            count: _count
+        }));
+
+        emit ItemAdded(msg.sender, _name, _price, _count);
+    }
+    
+    // 函数重载示例3：计算购物车总价
+    // 不带参数：计算调用者的购物车总价
+    function calculateTotal() public view returns (uint256) {
+        return calculateTotal(msg.sender);
+    }
+    
+    // 函数重载示例4：计算购物车总价
+    // @param _user 指定用户地址
+    function calculateTotal(address _user) public view returns (uint256) {
+        uint256 total = 0;
+
+        Item[] storage cart = userCarts[_user];
+
+        for (uint i = 0; i < cart.length; i++) {
+            total += cart[i].price * cart[i].count;
+        }
+
+        return total;
+    }
+    
+    // 函数重载示例5：清空购物车
+    // 不带参数：清空自己的购物车
+    function clearCart() public {
+        delete userCarts[msg.sender];
+    }
+    
+    // 函数重载示例6：清空购物车
+    // @param _index 删除指定索引的商品
+    function clearCart(uint256 _index) public {
+
+        require(_index < userCarts[msg.sender].length, "Invalid index");
+
+        Item[] storage cart = userCarts[msg.sender];
+
+        // 删除指定位置的商品
+        for (uint i = _index; i < cart.length - 1; i++) {
+            cart[i] = cart[i + 1];
+        }
+
+        cart.pop();
+    }
 }
-
-// Solidity中函数重载的基本用法：名字相同但输入参数类型不同的函数可以同时存在，他们被视为不同的函数。
-
-
-
