@@ -98,6 +98,7 @@ contract UseLibrary{
 
 // 数学计算库：提供常用的数学运算功能
 library MathLibrary {
+
     // 安全加法：防止溢出
     function safeAdd(uint256 a, uint256 b) public pure returns (uint256) {
         uint256 c = a + b;
@@ -127,33 +128,42 @@ library MathLibrary {
 
 // 数组操作库：提供数组相关的操作
 library ArrayLibrary {
+
     // 查找数组中的最大值
     function findMax(uint256[] memory arr) public pure returns (uint256) {
+
         require(arr.length > 0, "Array must not be empty");
         uint256 maxValue = arr[0];
+
         for (uint256 i = 1; i < arr.length; i++) {
             if (arr[i] > maxValue) {
                 maxValue = arr[i];
             }
         }
+
         return maxValue;
     }
     
     // 计算数组平均值
     function average(uint256[] memory arr) public pure returns (uint256) {
+
         require(arr.length > 0, "Array must not be empty");
         uint256 sum = 0;
+
         for (uint256 i = 0; i < arr.length; i++) {
             sum = MathLibrary.safeAdd(sum, arr[i]);  // 使用安全加法
         }
+
         return sum / arr.length;
     }
 }
 
-// 示例合约：展示如何使用库合约
+// 如何使用库合约 ？
 contract MathOperations {
-    // 使用using for语法，将库函数附加到uint256类型
+
+    // 方式1：利用 using for 语法  来使用 库合约  ，将 库函数 附加到 uint256类型  
     using MathLibrary for uint256;
+    
     // 将库函数附加到uint256[]类型
     using ArrayLibrary for uint256[];
     
@@ -165,12 +175,12 @@ contract MathOperations {
         numbers.push(number);
     }
     
-    // 方式1：通过类型直接调用库函数
+    // 通过 类型 直接调用 库函数
     function calculateSum(uint256 a, uint256 b) public pure returns (uint256) {
         return a.safeAdd(b);  // 使用MathLibrary的safeAdd函数
     }
     
-    // 方式2：通过库名调用函数
+    // 方式2：通过 库合约名称 调用函数 ，来使用 库合约
     function calculateDifference(uint256 a, uint256 b) public pure returns (uint256) {
         return MathLibrary.safeSub(a, b);  // 直接使用库名调用
     }
