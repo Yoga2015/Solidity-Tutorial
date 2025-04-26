@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.13;
 
-// 第1种 ：通过 源文件 相对位置 import
+// 第1种 ：通过 源文件 相对路径 导入
 import "./Utils.sol";
 
 import "./Yeye.sol";
@@ -10,7 +10,7 @@ import "./Yeye.sol";
 // 第2种 ：通过 ‘全局符号’ 导入 特定的合约
 import {Yeye} from "./Yeye.sol";
 
-// 第3种 ：通过 网址 导入 网上的合约
+// 第3种 ：通过 URL网址 导入 网上的合约
 // import 'https://github.com/Yoga2015/Solidity-Tutorial/blob/main/contracts/solidity_by_example/Yeye.sol';
 
 // 第4种：通过 npm 的目录 导入
@@ -30,4 +30,4 @@ contract Import {
 }
 
 // 利用 import关键字 导入 外部源代码 的 方法。
-// 通过 import 关键字，可以引用 我们写的 其他文件中的合约 或者 函数，也可以直接 导入别人写好的代码，非常方便。
+// 通过 import 关键字 可以引用 我们写的 其他文件中的合约 或者 函数，也可以直接 导入别人写好的代码，非常方便。
