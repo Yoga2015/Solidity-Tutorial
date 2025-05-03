@@ -10,14 +10,14 @@ contract FallbackFunction {
     uint256 public totalReceived;                 // 总接收ETH数量
     mapping(address => uint256) public deposits;   // 用户存款记录
     
-    // === 事件定义 ===
-    // @param Sender: 调用者地址、value: 接收到的ETH数量、Data: 调用数据
+
+    // Sender: 调用者地址、value: 接收到的ETH数量、Data: 调用数据
     event FallbackCalled(address indexed Sender, uint256 Value, bytes Data);
     
-    // @param Sender: 调用者地址、Value: 接收到的ETH数量
+    // Sender: 调用者地址、Value: 接收到的ETH数量
     event ReceiveCalled(address indexed Sender, uint256 Value);
     
-    // @param user: 提款用户、amount: 提款金额
+    // user: 提款用户、amount: 提款金额
     event Withdrawn(address indexed user, uint256 amount);
 
     // === 构造函数 ===
@@ -25,7 +25,6 @@ contract FallbackFunction {
         owner = msg.sender;
     }
 
-    // === 修饰器 ===
     // 防重入锁
     modifier nonReentrant() {
         require(!locked, "ReentrancyGuard: reentrant call");
@@ -40,7 +39,6 @@ contract FallbackFunction {
         _;
     }
 
-    // === 核心函数 ===
     // receive函数：处理纯ETH转账
     receive() external payable nonReentrant {
         require(msg.value > 0, "Must send ETH");
@@ -56,7 +54,7 @@ contract FallbackFunction {
     // fallback函数：处理未知函数调用或带数据的ETH转账
     fallback() external payable nonReentrant {
 
-        require(msg.value >= 0, "Invalid value");  // 允许0 ETH，因为可能是纯函数调用
+        require(msg.value >= 0, "Invalid value");  // 允许 0 ETH，因为可能是纯函数调用          
         
         if(msg.value > 0) {
             // 如果发送了ETH，更新状态
@@ -68,9 +66,7 @@ contract FallbackFunction {
         emit FallbackCalled(msg.sender, msg.value, msg.data);
     }
 
-    // === 业务函数 ===
-    // 提取ETH
-    // @param amount: 提取金额
+    // 提取ETH    amount: 提取金额
     function withdraw(uint256 amount) external nonReentrant {
         require(amount > 0, "Invalid amount");
         require(deposits[msg.sender] >= amount, "Insufficient balance");
@@ -85,7 +81,6 @@ contract FallbackFunction {
         emit Withdrawn(msg.sender, amount);
     }
 
-    // === 查询函数 ===
     // 查询合约余额
     function getBalance() public view returns (uint256) {
         return address(this).balance;
@@ -117,4 +112,5 @@ contract FallbackFunction {
 
 // 使用场景
 // - receive: 简单ETH接收 ，无法处理数据
+
 // - fallback: 复杂交互和后备处理，可以访问msg.data
