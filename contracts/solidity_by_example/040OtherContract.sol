@@ -1,65 +1,77 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT   
+pragma solidity ^0.8.13;          
 
+/// @title 被调用的目标合约
+/// @notice 演示如何被其他合约调用的合约示例
 contract OtherContract {
-    // 定义一个名为 _x 的 私有变量，类型为uint256，初始化为 0
-    uint256 private _x = 0;
+    // 状态变量
+    uint256 private _x = 0;    // 私有状态变量，只能通过合约内部函数访问
 
-    // Log事件 ，记录日志，收到 ETH 后 ，记录 amount 和 gas
+    // 事件定义
+    // @param amount: 接收到的ETH数量（单位：wei）、gas: 剩余的gas数量
     event Log(uint amount, uint gas);
 
-    // 返回 当前合约 的地址的余额
+    // 查询合约ETH余额
+    // @return 返回当前合约的ETH余额（单位：wei）
     function getBalance() public view returns (uint) {
-        // address(this) 获取 当前合约的地址，.balance 是 该地址的 余额属性。
         return address(this).balance;
     }
 
-    // 可以 调整 状态变量 _x 的 函数，并且 可以 往合约 转 ETH (payable)
+    // 设置状态变量并接收ETH
+    // @param x: 要设置的新值
+    // @notice 函数可以接收ETH转账
     function setX(uint256 x) external payable {
-        _x = x;
+        _x = x;  // 更新状态变量
 
-        // 如果 转入 ETH , 则释放Log 事件
+        // 如果收到ETH，触发日志事件
         if (msg.value > 0) {
             emit Log(msg.value, gasleft());
         }
     }
 
-    // 读取 _x
+    // 读取状态变量
+    // @return x: 返回_x的当前值
     function getX() external view returns (uint x) {
         x = _x;
     }
 }
 
-// OtherContract 合约 包含一个状态变量_x，一个事件Log 在 收到ETH时 触发，三个函数：
-
-// getBalance(): 返回合约ETH余额。
-// setX(): external payable函数，可以设置_x的值，并向合约发送ETH。
-// getX(): 读取_x的值。
-
-// CallContract合约 去调用 OtherContract合约 的 函数
+/// @title 调用者合约
+/// @notice 演示如何调用其他合约的不同方法
 contract CallContract {
-    // 往 callSetX函数 传入 目标合约地址，生成 目标合约的引用，然后 调用 目标函数
+
+    // 调用目标合约的setX函数
+    // @param _Address: 目标合约地址、 x: 要设置的值
     function callSetX(address _Address, uint256 x) external {
+        // 通过地址创建合约引用并调用函数
         OtherContract(_Address).setX(x);
     }
 
-    // 往 callGetX函数 传入 合约的引用，来 实现 调用 目标合约 的 getX()函数
+    // 通过合约类型调用getX
+    // @param _Address: 目标合约实例、x: 返回目标合约的x值
     function callGetX(OtherContract _Address) external view returns (uint x) {
+        // 直接使用合约类型参数调用
         x = _Address.getX();
     }
 
-    // 创建 合约变量，然后通过 合约变量 来调用 目标函数
+    // 通过地址调用getX的另一种方式
+    // @param _Address: 目标合约地址、 x: 返回目标合约的x值
     function callGetX2(address _Address) external view returns (uint x) {
-        OtherContract oc = OtherContract(_Address); // 给变量oc存储了OtherContract合约的引用
-
+        // 创建临时合约引用
+        OtherContract oc = OtherContract(_Address);
+        // 通过引用调用函数
         x = oc.getX();
     }
 
-    // 调用 它 来给 合约 转账
+    // 调用目标合约并转账ETH
+    // @param otherContract: 目标合约地址
+    // @param x: 要设置的值
+    // @notice 函数可以接收ETH并转发
     function setXTransferETH(
         address otherContract,
         uint256 x
     ) external payable {
+        // 调用目标合约的payable函数并转发ETH
         OtherContract(otherContract).setX{value: msg.value}(x);
     }
 }
