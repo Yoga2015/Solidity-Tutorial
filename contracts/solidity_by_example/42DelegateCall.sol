@@ -1,35 +1,47 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// 被调用的 合约C       0xaE7A2AB9883E1A4add3900c910F95eB90D31a323
-contract C {
-    uint public num;
-    address public sender;
+/// @title 演示delegatecall和call的区别
+/// @notice 展示两种调用方式如何影响状态变量的存储上下文
 
-    // 将 num 设定为 传入的 _num，并且 将 sender 设为 msg.sender。
+// 被调用的合约C（逻辑合约）       0xaE7A2AB9883E1A4add3900c910F95eB90D31a323
+contract C {
+
+    // 状态变量布局必须与合约B相同
+    uint public num;        // 存储插槽0：数值存储
+    address public sender;  // 存储插槽1：地址存储
+
+    // 设置状态变量的函数
+    // @param _num: 要设置的数值
+    // @notice 同时设置num和sender
     function setVars(uint _num) public payable {
-        num = _num;
-        sender = msg.sender;
+        num = _num;            // 设置数值
+        sender = msg.sender;   // 设置调用者地址
     }
 }
 
-// 发起调用的 合约B    0x0Ffc8eec096f90088Df7f0888e6Da0Dc1b57b392
+// 调用者合约B（代理合约）   0x0Ffc8eec096f90088Df7f0888e6Da0Dc1b57b392
 // 合约B 必须和 目标合约C 的 变量存储布局 必须相同，两个变量，并且顺序为 num 和 sender
 contract B {
-    uint public num;
-    address public sender;
+    
+    // 状态变量布局必须与合约C完全一致
+    uint public num;        // 存储插槽0：数值存储
+    address public sender;  // 存储插槽1：地址存储
 
-    // 1.通过 call 来调用 目标合约C 的 setVars（）函数，将改变 目标合约C里的 状态变量
-    // 有两个参数_addr和_num，分别对应 合约C的地址 和 setVars的参数 。
+    // 使用 call 调用 合约C 的 setVars函数，调用后会改变合约C的状态
+    // @param _addr: 目标合约C的地址、_num: 要设置的数值
     function callSetVars(address _addr, uint _num) external payable {
         (bool success, bytes memory data) = _addr.call(
             abi.encodeWithSignature("setVars(uint256)", _num)
         );
     }
 
-    // 2.通过 delegatecall 来调用 目标合约C 的 setVars()函数，将改变 合约B里的 状态变量
-    // 有两个参数_addr和_num，分别对应 合约C的地址 和 setVars的参数 。
+    // 使用 delegatecall 调用 合约C 的 setVars函数
+    // @param _addr: 目标合约C的地址、_num: 要设置的数值
+    // @notice 调用后会改变当前合约B的状态
     function delegatecallSetVars(address _addr, uint _num) external payable {
+
+         // delegatecall调用：在当前合约的上下文中执行
         (bool success, bytes memory data) = _addr.delegatecall(
             abi.encodeWithSignature("setVars(uint256)", _num)
         );
