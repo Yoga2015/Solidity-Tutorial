@@ -1,22 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+/// @title 交易对合约
+/// @notice 用于管理DEX中的代币交易对
 contract Pair {
-    address public factory; // 工厂合约地址
-    address public token0; // 交易对中 的 第一个代币的地址
-    address public token1; // 交易对中 的 第二个代币的地址
+    // === 状态变量 ===
+    address public factory;  // 记录创建该交易对的工厂合约地址
+    address public token0;   // 交易对中第一个代币的地址
+    address public token1;   // 交易对中第二个代币的地址
 
-    // 构造函数 constructor 在部署时 将 factory 赋值为 工厂合约地址
+    /// @notice 设置工厂合约地址 ，payable允许在部署时接收ETH，虽然这里未使用该特性
     constructor() payable {
-        factory = msg.sender;
+        factory = msg.sender;  // 将部署者（工厂合约）地址存储
     }
 
-    // initialize函数 会由 工厂合约 在部署完成后， 手动调用 以 初始化 代币地址，将 token0 和 token1 更新为 币对中 两种代币 的 地址。
-    // 在部署时 由 工厂 调用一次
+    /// @notice 初始化交易对的代币地址
+    /// @param _token0 第一个代币的地址、 _token1 第二个代币的地址
+    /// @dev  在部署时，只能由工厂合约调用一次
     function initialize(address _token0, address _token1) external {
-        require(msg.sender == factory, "UniswapV2: FORBIDDEN"); // sufficient check
-        token0 = _token0;
-        token1 = _token1;
+        require(msg.sender == factory, "UniswapV2: FORBIDDEN"); // 权限检查
+        token0 = _token0;  // 设置第一个代币地址
+        token1 = _token1;  // 设置第二个代币地址
     }
 }
 
@@ -33,28 +37,30 @@ contract Pair {
 //    initialize 函数 接受 两个参数：_token0 和 _token1，分别代表 交易对中 的 两个代币的地址。
 //    initialize 函数内部 使用 require语句 来确保 只有 工厂合约 可以调用 这个函数，如果 调用者 不是 工厂合约，则交易会失败，并返回错误信息"UniswapV2: FORBIDDEN"。
 
+/// @title 交易对工厂合约
+/// @notice 用于创建和管理交易对合约
 contract PairFactory {
+
+     // 双重映射：token0地址 => token1地址 => pair地址
     // 用于 通过 两个代币的地址 来查找 对应的 Pair合约地址。键 是 两个代币的地址（tokenA和tokenB），值 是 Pair合约的地址。
     mapping(address => mapping(address => address)) public getPair;
 
     address[] public allPairs; // allPairs 是一个地址类型的数组，用于 存储 所有创建的 Pair合约的地址
 
     // 用于创建新的Pair合约实例。它接受两个参数：tokenA和tokenB，分别代表 要创建 交易对 的 两个代币的地址。函数 返回 新创建的Pair合约的地址。
-    function createPair(
-        address tokenA,
-        address tokenB
-    ) external returns (address pairAddr) {
+    function createPair(address tokenA,address tokenB) external returns (address pairAddr) {
+
         // Pair 必须是一个已经定义好的合约，且在当前上下文中可见（例如，它可能是在同一个文件中定义的，或者通过import语句引入的）
         Pair pair = new Pair(); // 使用 new关键字 创建了 Pair合约 的 一个新实例。
 
         pair.initialize(tokenA, tokenB); // 调用 新合约的 initialize方法
 
-        pairAddr = address(pair); // 将 新创建的Pair合约的地址 赋值给 pairAddr变量
+        pairAddr = address(pair); //  // 获取新创建的合约地址
 
-        allPairs.push(pairAddr); // 然后，将 这个地址 添加到 allPairs数组中
+        allPairs.push(pairAddr); //  将 新交易对地址 添加到  allPairs数组中
 
+         // 双向记录交易对映射关系
         getPair[tokenA][tokenB] = pairAddr; // 更新 getPair映射
-
         getPair[tokenB][tokenA] = pairAddr; // 更新 getPair映射
     }
 }
