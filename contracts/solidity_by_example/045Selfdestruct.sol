@@ -4,10 +4,9 @@ pragma solidity ^0.8.13;
 /// @title 合约自毁演示
 /// @notice 展示selfdestruct的使用及其在坎昆升级前后的区别
 contract DeleteContract {
-    // === 状态变量 ===
+
     uint public value = 10;    // 测试用状态变量，初始值为10
 
-    /// @notice 构造函数，允许在部署时接收ETH
     constructor() payable {}   // payable允许在部署时转入ETH
 
     /// @notice 接收ETH的回退函数
