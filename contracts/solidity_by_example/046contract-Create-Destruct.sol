@@ -1,37 +1,48 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// 意味着 DeployContract合约 将能够使用 DeleteContract合约中 定义的功能。
+// 导入自毁合约
 import "./045Selfdestruct.sol";
 
+/// @title 合约创建与销毁演示
+/// @notice 展示合约的完整生命周期管理
 contract DeployContract {
-    // 被用于 demo函数 的 返回值
+    // === 结构体定义 ===
+    /// @notice 用于记录合约创建的结果
     struct DemoResult {
-        address addr;
-        uint balance;
-        uint value;
+        address addr;    // 新创建的合约地址
+        uint balance;    // 合约的ETH余额
+        uint value;      // 合约的状态变量值
     }
 
-    // 构造函数 被标记为 payable，这意味着 在部署合约时 可以向其 发送以太币。然而，构造函数内部并没有执行任何操作。
+    /// @notice 构造函数，允许部署时接收ETH
+    /// @dev 虽然可以接收ETH，但构造函数不执行任何操作
     constructor() payable {}
 
-    // 被标记为view 意味着 它不会修改 区块链上的任何状态。它返回当前合约的以太币余额。
+    /// @notice 查询当前合约的ETH余额
+    /// @return balance 合约的ETH余额（单位：wei）
     function getBalance() external view returns (uint balance) {
         balance = address(this).balance;
     }
 
+    /// @notice 演示合约的创建和销毁过程
+    /// @dev 创建合约、记录状态、然后销毁它
+    /// @return DemoResult 包含新合约的信息
     function demo() public payable returns (DemoResult memory) {
-        // 使用 msg.value（即调用者发送的以太币数量）部署一个新的DeleteContract实例，并将其地址存储在变量del中。
+        // 创建新的DeleteContract实例，并转入调用者发送的ETH
         DeleteContract del = new DeleteContract{value: msg.value}();
 
+        // 记录新合约的状态信息
         DemoResult memory res = DemoResult({
-            addr: address(del),
-            balance: del.getBalance(),
-            value: del.value()
+            addr: address(del),      // 记录新合约地址
+            balance: del.getBalance(), // 获取合约ETH余额
+            value: del.value()       // 获取合约状态变量值
         });
 
-        del.deleteContract(); // 调用del.deleteContract() 用于删除或自毁合约
+        // 调用自毁函数，销毁新创建的合约
+        del.deleteContract();
 
+        // 返回记录的状态信息
         return res;
     }
 }
