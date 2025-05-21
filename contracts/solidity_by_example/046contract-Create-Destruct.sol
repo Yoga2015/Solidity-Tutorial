@@ -4,54 +4,125 @@ pragma solidity ^0.8.13;
 // 导入自毁合约
 import "./045Selfdestruct.sol";
 
-/// @title 合约创建与销毁演示
-/// @notice 展示合约的完整生命周期管理
-contract DeployContract {
-    // === 结构体定义 ===
-    /// @notice 用于记录合约创建的结果
-    struct DemoResult {
-        address addr;    // 新创建的合约地址
-        uint balance;    // 合约的ETH余额
-        uint value;      // 合约的状态变量值
+/// @title 临时钱包工厂：演示合约的创建与销毁
+/// @notice 这是一个教学示例，展示如何创建临时钱包并在使用后销毁它们
+contract WalletFactory {
+
+    // 创建钱包时触发的事件
+    event WalletCreated(address indexed wallet, uint amount);
+    // 销毁钱包时触发的事件
+    event WalletDestroyed(address indexed wallet, uint returnedAmount);
+
+    // 记录创建的钱包总数
+    uint public totalWalletsCreated;
+    // 记录当前活跃的钱包数量
+    uint public activeWallets;
+    // 记录工厂合约创建者地址
+    address public immutable owner;
+
+ 
+    // 用于记录钱包操作的结果
+    struct WalletOperation {
+        address walletAddress;    // 钱包合约地址
+        uint depositAmount;       // 存入的金额
+        uint timestamp;          // 操作时间戳
+        bool isDestroyed;        // 是否已销毁
     }
 
-    /// @notice 构造函数，允许部署时接收ETH
-    /// @dev 虽然可以接收ETH，但构造函数不执行任何操作
-    constructor() payable {}
 
-    /// @notice 查询当前合约的ETH余额
-    /// @return balance 合约的ETH余额（单位：wei）
-    function getBalance() external view returns (uint balance) {
-        balance = address(this).balance;
+    // 记录所有钱包操作的历史
+    mapping(uint => WalletOperation) public walletHistory;
+
+    /// @notice 构造函数，初始化工厂合约
+    constructor() {
+        // 设置合约部署者为工厂所有者
+        owner = msg.sender;
+        // 初始化计数器
+        totalWalletsCreated = 0;
+        activeWallets = 0;
     }
 
-    /// @notice 演示合约的创建和销毁过程
-    /// @dev 创建合约、记录状态、然后销毁它
-    /// @return DemoResult 包含新合约的信息
-    function demo() public payable returns (DemoResult memory) {
-        // 创建新的DeleteContract实例，并转入调用者发送的ETH
-        DeleteContract del = new DeleteContract{value: msg.value}();
+    /// @notice 创建一个新的临时钱包并存入资金
+    /// @dev 创建DeleteContract实例作为临时钱包
+    /// @return operation 返回钱包操作的详细信息
+    function createTemporaryWallet() public payable returns (WalletOperation memory operation) {
 
-        // 记录新合约的状态信息
-        DemoResult memory res = DemoResult({
-            addr: address(del),      // 记录新合约地址
-            balance: del.getBalance(), // 获取合约ETH余额
-            value: del.value()       // 获取合约状态变量值
+        // 要求存入的资金大于0
+        require(msg.value > 0, "Must deposit some ETH to create wallet");
+
+        // 创建新的钱包合约（DeleteContract实例）并转入ETH
+        DeleteContract wallet = new DeleteContract{value: msg.value}();
+
+        // 更新计数器
+        totalWalletsCreated++;
+        activeWallets++;
+
+        // 记录本次操作
+        operation = WalletOperation({
+            walletAddress: address(wallet),
+            depositAmount: msg.value,
+            timestamp: block.timestamp,
+            isDestroyed: false
         });
 
-        // 调用自毁函数，销毁新创建的合约
-        del.deleteContract();
+        // 将操作记录保存到历史记录中
+        walletHistory[totalWalletsCreated] = operation;
 
-        // 返回记录的状态信息
-        return res;
+        // 触发钱包创建事件
+        emit WalletCreated(address(wallet), msg.value);
+    }
+
+    /// @notice 销毁指定的临时钱包
+    /// @param walletId 要销毁的钱包ID（创建时的序号）
+    /// @return success 操作是否成功
+    function destroyWallet(uint walletId) public returns (bool success) {
+        // 检查钱包ID是否有效
+        require(walletId > 0 && walletId <= totalWalletsCreated, "Invalid wallet ID");
+        
+        // 获取钱包操作记录
+        WalletOperation storage operation = walletHistory[walletId];
+        
+        // 检查钱包是否已被销毁
+        require(!operation.isDestroyed, "Wallet already destroyed");
+
+        // 获取钱包合约实例
+        DeleteContract wallet = DeleteContract(payable(operation.walletAddress));
+        
+        // 获取销毁前的余额
+        uint balanceBeforeDestroy = wallet.getBalance();
+
+        // 销毁钱包合约
+        wallet.deleteContract();
+        
+        // 更新状态
+        operation.isDestroyed = true;
+        activeWallets--;
+
+        // 触发销毁事件
+        emit WalletDestroyed(operation.walletAddress, balanceBeforeDestroy);
+
+        return true;
+    }
+
+    /// @notice 获取钱包的当前状态
+    /// @param walletId 钱包ID
+    /// @return operation 钱包操作记录
+    function getWalletInfo(uint walletId) public view returns (WalletOperation memory) {
+        // 检查钱包ID是否有效
+        require(walletId > 0 && walletId <= totalWalletsCreated, "Invalid wallet ID");
+        return walletHistory[walletId];
+    }
+
+    /// @notice 获取工厂合约的ETH余额
+    /// @return 合约的ETH余额（单位：wei）
+    function getFactoryBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    /// @notice 获取合约的基本统计信息
+    /// @return total 创建的总钱包数
+    /// @return active 当前活跃的钱包数
+    function getStats() public view returns (uint total, uint active) {
+        return (totalWalletsCreated, activeWallets);
     }
 }
-
-// demo函数 是 公共可调用的，并且也是payable的。这个函数执行以下操作：
-// 1、使用msg.value（即调用者发送的以太币数量）部署一个新的DeleteContract实例，并将其地址存储在变量del中。
-// 2、创建一个DemoResult类型的局部变量res，并初始化其字段：
-//      addr字段设置为新部署的DeleteContract实例的地址。
-//      balance字段通过调用del.getBalance()获取DeleteContract实例的余额（这里假设DeleteContract有一个返回余额的函数getBalance）。
-//      value字段通过调用del.value()获取（这里假设DeleteContract有一个返回某种值的函数value，但具体返回什么值取决于DeleteContract的实现）。
-// 3、调用del.deleteContract()（这里假设DeleteContract有一个deleteContract函数用于删除或自毁合约）。
-// 4、返回res结构体实例。
