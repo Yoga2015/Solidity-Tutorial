@@ -2,53 +2,72 @@
 pragma solidity ^0.8.13;
 
 contract AbiEncodeDecode {
-    // 1、ABI解码
-    // 将 编码 4个变量，他们的类型 分别是 uint256（别名 uint）, address, string, uint256[2]
-    uint x = 10;
-    address addr = 0x7A58c0Be72BE218B41C608b7Fe7C5bB630736C71;
-    string name = "0xAA";
-    uint[2] array = [5, 6];
 
-    // abi.encode ：将 给定参数 利用 ABI规则 编码。
+    uint x = 10;                    // 无符号整数示例值
+    address addr = 0x7A58c0Be72BE218B41C608b7Fe7C5bB630736C71; // 地址示例
+    string name = "0xAA";           // 字符串示例
+    uint[2] array = [5, 6];        // 固定长度数组示例
+
+    /**
+     * @dev 使用标准ABI编码规则对合约状态变量进行编码
+     * @return result 返回编码后的字节数组
+     * 注意：abi.encode会保留所有类型信息，适合合约间调用
+     */
     function encode() public view returns (bytes memory result) {
         result = abi.encode(x, addr, name, array);
     }
 
-    // abi。encodePacked : 将 给定参数 根据 其 所需 最低空间编码。
+    /**
+     * @dev 使用紧凑编码方式对状态变量进行编码
+     * @return result 返回编码后的字节数组
+     * 注意：abi.encodePacked会尽可能减少空间使用，但不适合跨合约调用
+     */
     function encodePacked() public view returns (bytes memory result) {
         result = abi.encodePacked(x, addr, name, array);
     }
 
-    // abi.encodeWithSignature: 与 abi.encode功能类似，只不过 第一个参数 为 函数签名
+    /**
+     * @dev 使用函数签名进行编码
+     * @return result 返回编码后的字节数组
+     * @notice 第一个参数是函数签名字符串，后面是实际参数
+     * 用途：模拟函数调用数据的编码方式
+     */
     function encodeWithSignature() public view returns (bytes memory result) {
         result = abi.encodeWithSignature(
-            "foo(uint256,address,string,uint256[2])",
-            x,
-            addr,
-            name,
-            array
+            "foo(uint256,address,string,uint256[2])", // 函数签名
+            x,       // 第一个参数：uint256类型
+            addr,    // 第二个参数：address类型
+            name,    // 第三个参数：string类型
+            array    // 第四个参数：uint256[2]固定数组类型
         );
     }
 
-    // abi.encodeWithSelector: 与abi.encodeWithSignature功能类似，只不过 第一个参数 为 函数选择器，为 函数签名Keccak哈希 的 前4个字节。
+    /**
+     * @dev 使用函数选择器进行编码
+     * @return result 返回编码后的字节数组
+     * @notice 第一个参数是函数选择器(函数签名的前4字节哈希)
+     * 用途：与encodeWithSignature类似，但使用选择器而非完整签名
+     */
     function encodeWithSelector() public view returns (bytes memory result) {
         result = abi.encodeWithSelector(
-            bytes4(keccak256("foo(uint256,address,string,uint256[2])")),
-            x,
-            addr,
-            name,
-            array
+            bytes4(keccak256("foo(uint256,address,string,uint256[2])")), // 函数选择器
+            x,    // uint256参数
+            addr, // address参数
+            name, // string参数
+            array // uint256[2]数组参数
         );
     }
 
-    // 2、ABI解码
-    // abi.decode : 用于 解码 abi.encode 生成的 二进制编码，将 它 还原成 原本的参数。
-    function decode(
-        bytes memory data
-    )
-        public
-        pure
-        returns (
+    /**
+     * @dev 对编码后的数据进行解码
+     * @param data 要解码的字节数组(必须是用abi.encode编码的数据)
+     * @return dx 解码后的uint值
+     * @return daddr 解码后的address值
+     * @return dname 解码后的string值
+     * @return darray 解码后的uint[2]数组
+     * 注意：解码时的类型顺序必须与编码时完全一致
+     */
+    function decode(bytes memory data) public pure returns (
             uint dx,
             address daddr,
             string memory dname,
@@ -56,8 +75,8 @@ contract AbiEncodeDecode {
         )
     {
         (dx, daddr, dname, darray) = abi.decode(
-            data,
-            (uint, address, string, uint[2])
+            data,                       // 要解码的字节数据
+            (uint, address, string, uint[2]) // 指定解码后的类型顺序
         );
     }
 }
