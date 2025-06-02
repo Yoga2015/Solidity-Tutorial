@@ -1,53 +1,80 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// 创建一个 外部合约OnlyEven，并使用try-catch来处理异常：
+// 外部合约示例，用于演示try-catch功能
 contract OnlyEvenContract {
-    // 构造函数有一个参数a，当 a != 0 时，require会抛出异常；当 a != 1 时，assert会抛出异常；其他情况均正常。
+    /**
+     * @dev 构造函数包含条件检查
+     * @param a 输入参数
+     * - a=0时触发require异常
+     * - a=1时触发assert异常
+     * - 其他值正常执行
+     */
     constructor(uint a) {
-        require(a != 0, "invalid number"); // require 常用于 合约 执行前 的 条件检查，如: 验证 输入参数 或 外部合约调用 结果
-        assert(a != 1); //  assert 用于检查 代码逻辑 中 的 不变量, 当 检查条件 不成立 的时候，就会抛出异常。
+        require(a != 0, "invalid number"); // 输入验证：a不能为0
+        assert(a != 1); // 内部一致性检查：a不能为1
     }
 
-    // onlyEven函数 有一个参数 b，当 b 为 奇数 时，require会抛出异常。
+    /**
+     * @dev 仅接受偶数输入的函数
+     * @param b 输入参数
+     * @return success 操作是否成功
+     * - 输入偶数时返回true
+     * - 输入奇数时revert
+     */
     function onlyEven(uint256 b) external pure returns (bool success) {
-        require(b % 2 == 0, "Ups! Reverting"); // 输入奇数时 revert
+        require(b % 2 == 0, "Ups! Reverting"); // 检查输入是否为偶数
         success = true;
     }
 }
 
-// 创建一个 合约TryCatch 来处理 外部函数调用 异常
+// 主合约，演示try-catch异常处理
 contract TryCatch {
-    event SuccessEvent(); // SuccessEvent 是 调用成功 会释放的事件
-    event CatchEvent(string message); // CatchEvent 和 CatchByte 是 抛出异常时 会释放的事件
-    event CatchByte(bytes data);
+    // 事件定义
+    event SuccessEvent(); // 成功时触发
+    event CatchEvent(string message); // 捕获字符串类型异常时触发
+    event CatchByte(bytes data); // 捕获字节类型异常时触发
 
-    OnlyEvenContract even; // 声明 OnlyEvenContract 的 合约变量
+    // 状态变量
+    OnlyEvenContract even; // 外部合约实例
 
+    // 构造函数初始化外部合约
     constructor() {
-        even = new OnlyEvenContract(2);
+        even = new OnlyEvenContract(2); // 使用有效参数初始化
     }
 
-    // 在 evecute 函数中 使用 try-catch 处理 调用 外部函数 onlyEven 中 的 异常
+    /**
+     * @dev 调用外部合约函数并处理异常
+     * @param amount 输入参数
+     * @return success 操作是否成功
+     */
     function evecute(uint amount) external returns (bool success) {
+
         try even.onlyEven(amount) returns (bool _success) {
-            emit SuccessEvent(); // call成功 的 情况下
+            emit SuccessEvent(); // 成功时触发事件
             return _success;
+            
         } catch Error(string memory reason) {
-            emit CatchEvent(reason); // call不成功 的 情况下
+            emit CatchEvent(reason); // 捕获require/revert异常
         }
     }
 
-    // 在 创建新合约中 使用 try-catch (合约 创建被视为 external call)
-    // executeNew(0)会失败并释放`CatchEvent`, executeNew(1)会失败并释放`CatchByte`,executeNew(2)会成功并释放`SuccessEvent`
+    /**
+     * @dev 创建新合约并处理可能出现的异常
+     * @param a 构造函数参数
+     * @return success 操作是否成功
+     */
     function evecuteNew(uint a) external returns (bool success) {
+
         try new OnlyEvenContract(a) returns (OnlyEvenContract _even) {
-            emit SuccessEvent(); // call成功的情况下
-            success = _even.onlyEven(a);
+            emit SuccessEvent(); // 创建成功时触发事件
+            success = _even.onlyEven(a); // 调用新合约的函数
+
         } catch Error(string memory reason) {
-            emit CatchEvent(reason); // catch 失败的 revert() 和 require()
+            emit CatchEvent(reason); // 捕获require/revert异常
+
         } catch (bytes memory reason) {
-            emit CatchByte(reason); // catch失败 的 assert()
+            emit CatchByte(reason); // 捕获assert异常
         }
     }
 }
