@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-// 下面例子展示了如何使用 selector 来调用目标合约中的函数。
+// 下面例子展示了如何使用 selector 来调用 目标合约中 的 函数。
 // 回调合约示例
 contract CallbackContract {
     /**
@@ -64,3 +64,125 @@ contract CallerContract {
 // selector的主要作用 是 标识 和 定位 智能合约中的函数。
 
 // 通过 selector，区块链节点 可以快速 找到 并 调用 目标函数，而 无需 遍历 合约中的所有函数。
+
+
+
+
+// 计算器接口合约
+interface ICalculator {
+    function add(uint a, uint b) external pure returns (uint);
+    function subtract(uint a, uint b) external pure returns (uint);
+    function multiply(uint a, uint b) external pure returns (uint);
+    function divide(uint a, uint b) external pure returns (uint);
+}
+
+// 基础计算器实现
+contract BasicCalculator is ICalculator {
+    /**
+     * @dev 加法运算
+     * @param a 第一个加数
+     * @param b 第二个加数
+     * @return 两数之和
+     */
+    function add(uint a, uint b) external pure override returns (uint) {
+        return a + b;
+    }
+
+    /**
+     * @dev 减法运算
+     * @param a 被减数、 b 减数
+     * @return 两数之差
+     */
+    function subtract(uint a, uint b) external pure override returns (uint) {
+        require(a >= b, "Subtraction underflow");
+        return a - b;
+    }
+
+    /**
+     * @dev 乘法运算
+     * @param a 第一个乘数、b 第二个乘数
+     * @return 两数之积
+     */
+    function multiply(uint a, uint b) external pure override returns (uint) {
+        return a * b;
+    }
+
+    /**
+     * @dev 除法运算
+     * @param a 被除数、b 除数
+     * @return 两数之商
+     */
+    function divide(uint a, uint b) external pure override returns (uint) {
+        require(b != 0, "Division by zero");
+        return a / b;
+    }
+}
+
+// 计算器代理合约
+contract CalculatorProxy {
+    event CalculationResult(address indexed calculator, string operation, uint result);
+    event CalculationError(address indexed calculator, string error);
+
+    /**
+     * @dev 通过函数选择器调用计算器合约
+     * @param calculator 计算器合约地址
+     * @param operation 操作名称("add","subtract","multiply","divide")
+     * @param a 第一个操作数
+     * @param b 第二个操作数
+     * @return 计算结果
+     */
+    function calculate(
+        address calculator,
+        string memory operation,
+        uint a,
+        uint b
+    ) external returns (uint) {
+        // 计算函数选择器
+        bytes4 selector = bytes4(keccak256(bytes(string.concat(operation, "(uint256,uint256)"))));
+        
+        // 调用计算器合约
+        (bool success, bytes memory result) = calculator.call(
+            abi.encodeWithSelector(selector, a, b)
+        );
+
+        // 处理调用结果
+        if (success) {
+            uint value = abi.decode(result, (uint));
+            emit CalculationResult(calculator, operation, value);
+            return value;
+        } else {
+            emit CalculationError(calculator, "Calculation failed");
+            revert("Calculation failed");
+        }
+    }
+
+    /**
+     * @dev 批量执行计算操作
+     * @param calculators 计算器合约地址数组
+     * @param operations 操作名称数组
+     * @param a 第一个操作数数组
+     * @param b 第二个操作数数组
+     * @return 计算结果数组
+     */
+    function batchCalculate(
+        address[] memory calculators,
+        string[] memory operations,
+        uint[] memory a,
+        uint[] memory b
+    ) external returns (uint[] memory) {
+        require(
+            calculators.length == operations.length && 
+            operations.length == a.length && 
+            a.length == b.length,
+            "Input arrays length mismatch"
+        );
+
+        uint[] memory results = new uint[](calculators.length);
+        
+        for (uint i = 0; i < calculators.length; i++) {
+            results[i] = this.calculate(calculators[i], operations[i], a[i], b[i]);
+        }
+
+        return results;
+    }
+}
