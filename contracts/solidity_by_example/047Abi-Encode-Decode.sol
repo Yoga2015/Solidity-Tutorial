@@ -90,3 +90,116 @@ contract AbiEncodeDecode {
 // ABI 编码 有4个函数：abi.encode,  abi.encodePacked,  abi.encodeWithSignature,  abi.encodeWithSelector。
 
 // ABI 解码 有1个函数：abi.decode，用于解码abi.encode的数据。
+
+
+
+// 一个"跨合约消息传递系统"，通过ABI编码/解码实现合约间的数据交换。
+contract MessageSystem {
+    
+    // 消息结构体
+    struct Message {
+        address sender;
+        string content;
+        uint256 timestamp;
+        uint256[2] coordinates; // 示例数组参数
+    }
+
+    event MessageSent(address indexed sender, bytes encodedData);
+    event MessageDecoded(address indexed sender, string content);
+
+    /**
+     * @dev 编码消息
+     * @param _content 消息内容
+     * @param _coordinates 位置坐标
+     * @return encoded 编码后的消息数据
+     */
+    function encodeMessage(
+        string memory _content,
+        uint256[2] memory _coordinates
+    ) public view returns (bytes memory encoded) {
+        Message memory message = Message({
+            sender: msg.sender,
+            content: _content,
+            timestamp: block.timestamp,
+            coordinates: _coordinates
+        });
+        
+        // 使用abi.encode编码结构体
+        encoded = abi.encode(
+            message.sender,
+            message.content,
+            message.timestamp,
+            message.coordinates
+        );
+        
+        emit MessageSent(msg.sender, encoded);
+    }
+
+    /**
+     * @dev 解码消息
+     * @param _data 编码后的消息数据
+     * @return decoded 解码后的消息结构体
+     */
+    function decodeMessage(
+        bytes memory _data
+    ) public pure returns (Message memory decoded) {
+        // 解码时必须保持与编码时相同的类型顺序
+        (
+            decoded.sender,
+            decoded.content,
+            decoded.timestamp,
+            decoded.coordinates
+        ) = abi.decode(_data, (address, string, uint256, uint256[2]));
+    }
+
+    /**
+     * @dev 模拟跨合约调用编码
+     * @param _target 目标合约地址
+     * @param _content 消息内容
+     * @param _coordinates 位置坐标
+     * @return callData 编码后的调用数据
+     */
+    function prepareCallData(
+        address _target,
+        string memory _content,
+        uint256[2] memory _coordinates
+    ) public view returns (bytes memory callData) {
+        // 使用encodeWithSignature生成调用数据
+        callData = abi.encodeWithSignature(
+            "receiveMessage(address,string,uint256,uint256[2])",
+            _target,
+            _content,
+            block.timestamp,
+            _coordinates
+        );
+    }
+
+    /**
+     * @dev 处理接收到的消息
+     * @param _data 编码后的消息数据
+     */
+    function processMessage(bytes memory _data) external {
+        Message memory message = decodeMessage(_data);
+        emit MessageDecoded(message.sender, message.content);
+    }
+}
+
+contract MessageReceiver {
+    event MessageReceived(address sender, string content);
+
+    /**
+     * @dev 接收消息的函数
+     * @param _sender 发送者地址
+     * @param _content 消息内容
+     * @param _timestamp 时间戳
+     * @param _coordinates 位置坐标
+     */
+    function receiveMessage(
+        address _sender,
+        string memory _content,
+        uint256 _timestamp,
+        uint256[2] memory _coordinates
+    ) external {
+        emit MessageReceived(_sender, _content);
+    }
+}
