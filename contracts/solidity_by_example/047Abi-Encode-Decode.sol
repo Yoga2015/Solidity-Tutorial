@@ -116,7 +116,7 @@ contract MessageSystem {
     function encodeMessage(
         string memory _content,
         uint256[2] memory _coordinates
-    ) public view returns (bytes memory encoded) {
+    ) public returns (bytes memory encoded) {
         Message memory message = Message({
             sender: msg.sender,
             content: _content,
