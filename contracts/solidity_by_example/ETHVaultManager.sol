@@ -155,7 +155,7 @@ contract ETHVaultManager {
             // 如果金额太小，退回ETH
             (bool success, ) = payable(msg.sender).call{value: msg.value}("");   // 执行实际的ETH转账操作
             require(success, "ETH return failed");   // 如果转账失败，整个交易会被回滚
-            revert("Amount less than minimum deposit");    // 回滚交易，以防止无效状态
+            revert("Amount less than minimum deposit");    // 回滚交易，以防止无效状态   
         }
 
     }
