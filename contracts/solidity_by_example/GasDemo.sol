@@ -24,13 +24,13 @@ contract Gas {
 
 // 一个"投票系统"合约，通过有限循环演示gas优化问题
 contract VotingSystem {
+
     // 候选人结构体
     struct Candidate {
         string name;    // 候选人姓名
         uint voteCount; // 得票数
     }
 
-    // 状态变量
     Candidate[] public candidates; // 候选人数组
     mapping(address => bool) public voters; // 已投票地址映射
     bool public votingEnded;       // 投票是否结束
@@ -90,7 +90,7 @@ contract VotingSystem {
 
     /**
      * @dev 危险示例: 使用循环等待投票结束(会导致gas耗尽)
-     * @warning 仅用于演示gas耗尽问题
+     * 仅用于演示gas耗尽问题
      */
     function unsafeEndVoting() external {
         // 危险循环 - 会耗尽gas
